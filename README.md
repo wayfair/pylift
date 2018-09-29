@@ -81,6 +81,9 @@ $`N`$ data points:
 \text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\text{Qini curve}(\phi_{i+1})+\text{Qini curve}(\phi_{i})\right)\left(\phi_{i+1} - \phi_{i}\right)
 ```
 where $`\phi_{i} = i/N`$, and so
+
+![equation](http://www.sciweavers.org/tex2img.php?eq=%5Ctext%7BQini%20Curve%20Area%7D%20%3D%20%5Csum_%7Bi%3D0%7D%5E%7BN-1%7D%20%5Cfrac%7B1%7D%7B2%7D%5Cleft%28%5Cfrac%7Bn_%7By%3D1%2C%20%20%20%20%20%20%20%20A%7D%28%5Cphi_%7Bi%2B1%7D%29-n_%7By%3D1%2CA%7D%28%5Cphi_%7Bi%7D%29%7D%7Bn_A%7D%20-%20%5Cfrac%7Bn_%7By%3D1%2CB%7D%28%5Cphi_%7Bi%2B1%7D%29-n_%7By%3D1%2C%20%20B%7D%28%5Cphi_i%29%7D%7Bn_B%7D%5Cright%29%5Cfrac%7B1%7D%7BN%7D%0A&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0)
+
 ```math
 \text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\frac{n_{y=1,A}(\phi_{i+1})-n_{y=1,A}(\phi_{i})}{n_A} - \frac{n_{y=1,B}(\phi_{i+1})-n_{y=1,B}(\phi_i)}{n_B}\right)\frac{1}{N}
 ```
