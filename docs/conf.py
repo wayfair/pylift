@@ -17,12 +17,17 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
+# Add mock modules.
+import mock
+MOCK_MODULES = ['numpy']
+for mod_name in MOCK_MODULES:
+       sys.modules[mod_name] = mock.Mock()
 
 # -- Project information -----------------------------------------------------
 
 project = 'pylift'
-copyright = '2018, ryi, wfrost'
-author = 'ryi, wfrost'
+copyright = '2018, Robert Yi, Will Frost'
+author = 'Robert Yi, Will Frost'
 
 # The short X.Y version
 version = ''
@@ -48,13 +53,6 @@ napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
 
-# Add mock modules to allow for proper documentation of out-of-package functions.
-import mock
-# MOCK_MODULES = ['copy', 'functools', 'matplotlib', 'numpy', 'scipy', 'sklearn', 'pandas', 'warnings', 'xgboost']
-MOCK_MODULES = ['numpy']
-for mod_name in MOCK_MODULES:
-       sys.modules[mod_name] = mock.Mock()
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -76,11 +74,11 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path .
+# This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = None
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -143,7 +141,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pylift.tex', 'pylift Documentation',
-     'ryi, wfrost', 'manual'),
+     'Robert Yi, Will Frost', 'manual'),
 ]
 
 
@@ -167,6 +165,24 @@ texinfo_documents = [
      author, 'pylift', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+# -- Options for Epub output -------------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------

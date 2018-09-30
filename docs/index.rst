@@ -1,5 +1,5 @@
 .. pylift documentation master file, created by
-   sphinx-quickstart on Mon Sep 10 15:17:08 2018.
+   sphinx-quickstart on Sun Sep 30 11:34:11 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
