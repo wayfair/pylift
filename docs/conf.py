@@ -50,7 +50,8 @@ napoleon_use_ivar = True
 
 # Add mock modules to allow for proper documentation of out-of-package functions.
 import mock
-MOCK_MODULES = ['copy', 'functools', 'matplotlib', 'numpy', 'scipy', 'sklearn', 'pandas', 'warnings', 'xgboost']
+# MOCK_MODULES = ['copy', 'functools', 'matplotlib', 'numpy', 'scipy', 'sklearn', 'pandas', 'warnings', 'xgboost']
+MOCK_MODULES = ['numpy']
 for mod_name in MOCK_MODULES:
        sys.modules[mod_name] = mock.Mock()
 
