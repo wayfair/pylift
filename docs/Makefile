@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = .
+BUILDDIR      = _build
 GH_PAGES_SOURCES = source Makefile index.rst conf.py
 
 # Put it first so that "make" without argument is like "make help".
@@ -24,5 +24,6 @@ gh-pages:
 	git checkout master $(GH_PAGES_SOURCES)
 	git reset HEAD
 	make html
-	git add -A
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
+	mv -vf ./_build/html/* ../
+	# git add -A
+	# git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages ; git checkout master
