@@ -1,0 +1,4 @@
+# Don't build any extra formats.
+formats: []
+python:
+    use_system_site_packages: true
