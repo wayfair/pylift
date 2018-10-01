@@ -50,11 +50,12 @@ class BaseProxyMethod:
         If not None, stratify is used as input into train_test_split.
     sklearn_model : scikit-learn regressor
         Model used for grid searching and fitting.
+
     """
 
     def _score(self, y_true, y_pred, method, plot_type, score_name):
-        """
-        scoring function to be passed to make_scorer.
+        """ scoring function to be passed to make_scorer.
+
         """
         treatment_true, outcome_true = self._untransform_func(y_true)
         scores = get_scores(treatment_true, outcome_true, y_pred, scoring_range=(0,self.scoring_cutoff[method]), plot_type=plot_type)
@@ -247,6 +248,7 @@ class BaseProxyMethod:
         --------
         # Passing kwargs.
         self.randomized_search(param_distributions={'max_depth':[2,3,5,10]}, refit=True)
+
         """
         self.randomized_search_params.update(kwargs)
         self.rand_search_ = RandomizedSearchCV(**self.randomized_search_params)
@@ -268,6 +270,7 @@ class BaseProxyMethod:
         --------
         # Passing kwargs.
         self.grid_search(param_grid={'max_depth':[2,3,5,10]}, refit=True)
+
         """
         self.grid_search_params.update(kwargs)
         self.grid_search_ = GridSearchCV(**self.grid_search_params)

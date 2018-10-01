@@ -11,7 +11,6 @@ Welcome to pylift's documentation!
    :caption: Contents:
 
 
-
 Indices and tables
 ==================
 
