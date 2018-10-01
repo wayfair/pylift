@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
-GH_PAGES_SOURCES = source Makefile
+GH_PAGES_SOURCES = source Makefile index.rst conf.py
 
 # Put it first so that "make" without argument is like "make help".
 help:
