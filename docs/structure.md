@@ -51,4 +51,3 @@ class as class attributes.
 
 `up.fit(productionize=True)` -> `up.model_final`
 
-~
