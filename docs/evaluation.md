@@ -1,6 +1,6 @@
 # Evaluation
 
-## Within `up` object
+## Within the `up` object
 
 All curves can be plotted using
 
