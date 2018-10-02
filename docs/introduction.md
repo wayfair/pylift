@@ -73,9 +73,9 @@ between this curve and the x-axis can be approximated by a Riemann sum on the
 \\(N\\) data points:
 $$\text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\text{Qini curve}(\phi_{i+1})+\text{Qini curve}(\phi_{i})\right)\left(\phi_{i+1} - \phi_{i}\right)$$
 where $$\phi_{i} = i/N,$$ and so
-$$\text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\frac{n_{y=1,A}(\phi_{i+1})-n_{y=1,A}(\phi_{i})}{n_A} - \frac{n_{y=1,B}(\phi_{i+1})-n_{y=1,B}(\phi_i)}{n_B}\right)\frac{1}{N}$$
+$$\text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\frac{n_{A,y=1}(\phi_{i+1})-n_{A,y=1}(\phi_{i})}{n_A} - \frac{n_{B,y=1}(\phi_{i+1})-n_{B,y=1}(\phi_i)}{n_B}\right)\frac{1}{N}$$
 We then need to subtract off the randomized curve area which is given by:
-$$\text{Randomized Qini Area} = \frac{1}{2}\left(\frac{n_{y=1,A}}{n_A} - \frac{n_{y=1,B}}{n_B}\right)$$
+$$\text{Randomized Qini Area} = \frac{1}{2}\left(\frac{n_{A,y=1}}{n_A} - \frac{n_{B,y=1}}{n_B}\right)$$
 and so the Qini coefficient is:
 $$Q = \text{Qini Curve Area} - \text{Randomized Qini Area}$$
 
@@ -83,7 +83,9 @@ $$Q = \text{Qini Curve Area} - \text{Randomized Qini Area}$$
 
 Unfortunately, with the Transformed Outcome method, there is a real risk of overfitting to the `treatment` label. In this case, the Qini curve as defined above could give values that are deceptively inflated. To correct for this, we implemented two alternate Qini-style curves. First, the **Cumulative Gain Chart** ([Gutierrez 2016](http://proceedings.mlr.press/v67/gutierrez17a/gutierrez17a.pdf)) finds the lift within the subset of the population up to \\(\phi\\), then multiplies this by \\(\phi\\) to scale the resulting quantity to match the Qini curve:
 
-$$\mbox{Cumulative gain}(\phi) \left( \frac{n_{y=1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right)$$
+$$\mbox{Cumulative gain}(\phi) \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right).$$
+
+Note we simplified the notation, replacing \\(y=1\\) above with simply \\(1\\) in the subscripts of \\(n\\).
 
 Alternatively, we also implement what we call the **Adjusted Qini curve**, which we define as follows:
 
