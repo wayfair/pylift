@@ -613,7 +613,7 @@ class UpliftEval:
 
         return percentile, y
 
-    def plot(self, plot_type='aqini', ax=None, show_theoretical_max=False, show_practical_max=False, show_random_selection=True, show_no_dogs=False, **kwargs):
+    def plot(self, plot_type='cgains', ax=None, show_theoretical_max=False, show_practical_max=False, show_random_selection=True, show_no_dogs=False, **kwargs):
         """Plots the different kinds of percentage-targeted curves.
 
         Parameters

@@ -348,7 +348,7 @@ class BaseProxyMethod:
             noise_fits.append(upev)
         self.noise_fits = noise_fits
 
-    def shuffle_fit(self, iterations=10, n_bins=20, params=None, transform_train=None, clear=False, plot_type='aqini', **kwargs):
+    def shuffle_fit(self, iterations=10, n_bins=20, params=None, transform_train=None, clear=False, plot_type='cgains', **kwargs):
         """Try the train-test split `iterations` times, and fit a model using `params`.
 
         Parameters
@@ -395,7 +395,7 @@ class BaseProxyMethod:
             self.shuffle_fit_ = ups
         return ups
 
-    def plot(self, plot_type='aqini', ax=None, n_bins=None, show_noise_fits=False, noise_lines_kwargs={}, noise_band_kwargs={}, show_shuffle_fits=False, shuffle_lines_kwargs={}, shuffle_band_kwargs={}, shuffle_avg_line_kwargs={}, *args, **kwargs):
+    def plot(self, plot_type='cgains', ax=None, n_bins=None, show_noise_fits=False, noise_lines_kwargs={}, noise_band_kwargs={}, show_shuffle_fits=False, shuffle_lines_kwargs={}, shuffle_band_kwargs={}, shuffle_avg_line_kwargs={}, *args, **kwargs):
         """ Function to plot all curves.
 
         args and kwargs are passed to the default
