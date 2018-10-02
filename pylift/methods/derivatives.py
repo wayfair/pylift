@@ -109,6 +109,6 @@ class TransformedOutcome(BaseProxyMethod):
         outcome[nonzeros] = y[nonzeros]*(p*(1-p))/(treatment[nonzeros]-p)
         return treatment, outcome
 
-    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='aqini'):
+    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):
 
         super().__init__(df, transform_func=self._transform_func, untransform_func=self._untransform_func, col_treatment=col_treatment, col_outcome=col_outcome, col_transformed_outcome=col_transformed_outcome, random_state=random_state, test_size=test_size, stratify=stratify, scoring_cutoff=scoring_cutoff, scoring_method=scoring_method, sklearn_model=sklearn_model)
