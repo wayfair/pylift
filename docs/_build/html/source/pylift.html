@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pylift package &mdash; pylift 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pylift
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction to uplift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quick-start.html">Quick start</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pylift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>pylift package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/pylift.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pylift-package">
+<h1>pylift package<a class="headerlink" href="#pylift-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pylift.explore.html">pylift.explore package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pylift.explore.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylift.explore.html#module-pylift.explore.base">pylift.explore.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylift.explore.html#module-pylift.explore">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pylift.methods.html">pylift.methods package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pylift.methods.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylift.methods.html#module-pylift.methods.base">pylift.methods.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylift.methods.html#module-pylift.methods.derivatives">pylift.methods.derivatives module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pylift.methods.html#module-pylift.methods">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylift.eval">
+<span id="pylift-eval-module"></span><h2>pylift.eval module<a class="headerlink" href="#module-pylift.eval" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pylift.eval.UpliftEval">
+<em class="property">class </em><code class="descclassname">pylift.eval.</code><code class="descname">UpliftEval</code><span class="sig-paren">(</span><em>treatment</em>, <em>outcome</em>, <em>prediction</em>, <em>n_bins=20</em><span class="sig-paren">)</span><a class="headerlink" href="#pylift.eval.UpliftEval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calculate qini and uplift curves given some input data.</p>
+<p>Requires three input vectors: <cite>treatment</cite>, <cite>outcome</cite>, <cite>prediction</cite>. Generates
+based qini and uplift curves where populations are ranked by <cite>prediction</cite>, and
+uplift is calculated over <cite>treatment</cite> and <cite>outcome</cite>.</p>
+<p>This class can be used independently of the methods in this package, i.e.
+if you want to evaluate the performance of an externally generated model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>treatment</strong> (<em>array-like</em>) – Array of 1s and 0s indicating whether a treatment was served.</li>
+<li><strong>outcome</strong> (<em>array-like</em>) – Arrays of nonzero values and zeros indicating whether a response occurred.</li>
+<li><strong>prediction</strong> (<em>array-like</em>) – Predicted value used to rank.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pylift.eval.UpliftEval.calc">
+<code class="descname">calc</code><span class="sig-paren">(</span><em>plot_type</em>, <em>n_bins=20</em><span class="sig-paren">)</span><a class="headerlink" href="#pylift.eval.UpliftEval.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the different curve types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>plot_type</strong> (<em>string</em>) – Type of curve to calculate. Options: qini, aqini, cgains, cuplift, balance, uplift.</li>
+<li><strong>n_bins</strong> (<em>int, optional</em>) – Number of bins to use.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>percentile</strong> (<em>list</em>) – The percentile of the population, calculated from the bins.</li>
+<li><strong>qini_y</strong> (<em>list</em>) – The qini value for each of the percentile points.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pylift.eval.UpliftEval.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>plot_type='aqini'</em>, <em>ax=None</em>, <em>show_theoretical_max=False</em>, <em>show_practical_max=False</em>, <em>show_random_selection=True</em>, <em>show_no_dogs=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pylift.eval.UpliftEval.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the different kinds of percentage-targeted curves.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>plot_type</strong> (<em>string, optional</em>) – Either ‘qini’, ‘aqini’, ‘uplift’, ‘cuplift’, or ‘balance’.
+‘aqini’ refers to an adjusted qini plot, ‘cuplift’ gives a
+cumulative uplift plot. ‘balance’ gives the test-control balance
+for each of the bins. All others are self-explanatory.</li>
+<li><strong>ax</strong> (<em>matplotlib.axes._subplots.AxesSubplot, optional</em>) – A matplotlib axis referencing where to plot.</li>
+<li><strong>show_theoretical_max</strong> (<em>boolean, optional</em>) – Toggle theoretical maximal qini curve, if overfitting to
+treatment/control. Only works for Qini-style curves.</li>
+<li><strong>show_practical_max</strong> (<em>boolean, optional</em>) – Toggle theoretical maximal qini curve, if not overfitting to
+treatment/control. Only works for Qini-style curves.</li>
+<li><strong>show_no_dogs</strong> (<em>boolean, optional</em>) – Toggle theoretical maximal qini curve, if you believe there are no
+sleeping dogs. Only works for Qini-style curves.</li>
+<li><strong>show_random_selection</strong> (<em>boolean, optional</em>) – Toggle straight line indicating a random ordering. Only works for
+Qini-style curves.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pylift.eval.get_scores">
+<code class="descclassname">pylift.eval.</code><code class="descname">get_scores</code><span class="sig-paren">(</span><em>treatment</em>, <em>outcome</em>, <em>prediction</em>, <em>scoring_range=(0</em>, <em>1)</em>, <em>plot_type='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#pylift.eval.get_scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate AUC scoring metrics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>treatment</strong> (<em>array-like</em>)</li>
+<li><strong>outcome</strong> (<em>array-like</em>)</li>
+<li><strong>prediction</strong> (<em>array-like</em>)</li>
+<li><strong>scoring_range</strong> (<em>2-tuple</em>) – Fractional range over which frost score is calculated. First element
+must be less than second, and both must be less than 1.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>scores</strong> – A dictionary containing the following values. Each is also appended
+with <cite>_cgains</cite> and <cite>_aqini</cite> for the corresponding values for the
+cumulative gains curve and adjusted qini curve, respectively.</p>
+<p>q1: Traditional Q score normalized by the theoretical
+maximal qini. Note the theoretical max here goes up with a slope of 2.</p>
+<p>q2: Traditional Q score normalized by the practical maximal qini. This
+curve increases with a slope of 1.</p>
+<p>Q: Area between qini curve and random selection line. This is named
+after the notation in Radcliffe &amp; Surry 2011, but note that they
+normalize their curves differently.</p>
+<p>Q_max: Maximal possible qini score, which is used for normalization
+of qini to get frost score. Only obtainable by overfitting.</p>
+<p>Q_practical_max: Practical maximal qini score, if you are not
+overfitting. This assumes that all (outcome, treatment) = (1,1) were
+persuadables, but that there are also an equal number of persuadables
+in the control group. This is the best possible scenario, but likely
+assumes too few “sure things”.</p>
+<p>overall_lift: The lift expected from random application of treatment.</p>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylift.generate_data">
+<span id="pylift-generate-data-module"></span><h2>pylift.generate_data module<a class="headerlink" href="#module-pylift.generate_data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pylift.generate_data.dgp">
+<code class="descclassname">pylift.generate_data.</code><code class="descname">dgp</code><span class="sig-paren">(</span><em>N=1000, n_features=3, beta=[1,-2,3,-0.8], error_std=0.5, tau=3, discrete_outcome=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pylift.generate_data.dgp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates random data with a ground truth data generating process.</p>
+<p>Draws random values for features from [0, 1), errors from a 0-centered
+distribution with std <cite>error_std</cite>, and creates an outcome y.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>N</strong> (<em>int, optional</em>) – Number of observations.</li>
+<li><strong>n_features</strong> (<em>int, optional</em>) – Number of features.</li>
+<li><strong>beta</strong> (<em>np.array, optional</em>) – Array of beta coefficients to multiply by X to get y.</li>
+<li><strong>error_std</strong> (<em>float, optional</em>) – Standard deviation (scale) of distribution from which errors are drawn.</li>
+<li><strong>tau</strong> (<em>float, optional</em>) – Effect of treatment.</li>
+<li><strong>tau_std</strong> (<em>float, optional</em>) – When not None, draws tau from a normal distribution centered around tau
+with standard deviation tau_std rather than just using a constant value
+of tau.</li>
+<li><strong>discrete_outcome</strong> (<em>boolean, optional</em>) – If True, outcomes are 0 or 1; otherwise continuous.</li>
+<li><strong>seed</strong> (<em>int, optional</em>) – Random seed fed to np.random.seed to allow for deterministic behavior.</li>
+<li><strong>Output</strong></li>
+<li><strong>——</strong></li>
+<li><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the generated data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pylift.style">
+<span id="pylift-style-module"></span><h2>pylift.style module<a class="headerlink" href="#module-pylift.style" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pylift">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylift" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Robert Yi.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="../None"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

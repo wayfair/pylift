@@ -483,13 +483,15 @@ class UpliftEval:
     This class can be used independently of the methods in this package, i.e.
     if you want to evaluate the performance of an externally generated model.
 
-    Examples:
-        upev = UpliftEval(treatment, outcome, prediction)
-        fig, ax = plt.subplots()
-        upev.plot_qini(ax)
+    Parameters
+    ----------
+    treatment : array-like
+        Array of 1s and 0s indicating whether a treatment was served.
+    outcome : array-like
+        Arrays of nonzero values and zeros indicating whether a response occurred.
+    prediction : array-like
+        Predicted value used to rank.
 
-        upev = UpliftEval(treatment, outcome, prediction)
-        upev.plot_qini()
     """
 
     def __init__(self, treatment, outcome, prediction, n_bins=20):
