@@ -1,15 +1,15 @@
 # Introduction to uplift
 
 In traditional binary classification, we attempt to predict a binary outcome
-\(y\) based on some set of features `X`. Consequently, our success criterion is
-usually something that measures how well we can predict `y` based on values of
-`X` (e.g. accuracy, precision, recall). In uplift modeling, however, the story
+\\(y\\) based on some set of features \\(X\\). Consequently, our success criterion is
+usually something that measures how well we can predict \\(y\\) based on values of
+\\(X\\) (e.g. accuracy, precision, recall). In uplift modeling, however, the story
 is quite different, because while we are still trying to predict the outcome
-`y`, we want to predict this outcome *conditioned* on a treatment.  For
+\\(y\\), we want to predict this outcome *conditioned* on a treatment.  For
 example, in traditional classification, we might want to know if someone will
-click an ad (`y`), period, while in uplift modeling, we would want to know if
-someone will click an ad based on what kind of ad we serve them (treatment) (`y
-| treatment`).
+click an ad (\\(y\\)), period, while in uplift modeling, we would want to know if
+someone will click an ad based on what kind of ad we serve them (treatment) (\\(y
+| treatment\\)).
 
 The practical ramifications of this constraint can be readily understood in the
 context of decision trees. In decision trees, splits are chosen to minimize
@@ -30,18 +30,18 @@ making our own homebrew algorithms, we sacrifice some of the benefits
 (efficient hyperparameter tuning) that come with speed (the other algorithms we
 have encountered are, regrettably, slow). Thus, we seek alternate methods that
 allow us to leverage `sklearn` (and other) modules. In particular, we implement
-methods here that simply transform the data, but in doing so, code the
-Test/Control information in the transformed outcome.
+methods here that simply transform the data, but code the Treatment/Control
+information in the transformed outcome.
 
+## The Qini curve
 Once the model has been made, evaluation is traditionally accomplished using
 what is known as a Qini curve. The Qini curve is defined as
-$$\text{Qini curve}(\phi) = \frac{n_{y=1,A}(\phi)}{n_A} - \frac{n_{y=1,B}(\phi)}{n_B}$$
-
-where $`\phi`$ is the fraction of population treated (in either A or B) ordered
+$$\text{Qini curve}(\phi) = \frac{n_{A,y=1}(\phi)}{n_A} - \frac{n_{B,y=1}(\phi)}{n_B}$$
+where \\(phi\\) is the fraction of population treated (in either A or B) ordered
 by predicted uplift (from highest to lowest). "Random chance" is therefore a
 model that cannot distinguish positive and negative uplift and results in a
-straight line from (0,0) to $$(1, \frac{n_{y=1,A}}{n_A} -
-\frac{n_{y=1,B}}{n_B}).$$ The value `Q` is then the area between the model's
+straight line from \\((0,0)\\) to $$(1, \frac{n_{A,y=1}}{n_A} -
+\frac{n_{B,y=1}}{n_B}).$$ The value `Q` is then the area between the model's
 Qini curve and the random chance Qini curve. `Q` has been used throughout the
 literature as a way of measuring how good a model is at separating positive and
 negative uplift values. However, a problem with this curve that its absolute
@@ -70,7 +70,7 @@ To evaluate `Q`, we predict the uplift for each row in our dataset.
 We then order the dataset from highest uplift to lowest
 uplift and evaluate the Qini curve as a function of the population targeted. The area
 between this curve and the x-axis can be approximated by a Riemann sum on the
-$`N`$ data points:
+\\(N\\) data points:
 $$\text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\text{Qini curve}(\phi_{i+1})+\text{Qini curve}(\phi_{i})\right)\left(\phi_{i+1} - \phi_{i}\right)$$
 where $$\phi_{i} = i/N,$$ and so
 $$\text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\frac{n_{y=1,A}(\phi_{i+1})-n_{y=1,A}(\phi_{i})}{n_A} - \frac{n_{y=1,B}(\phi_{i+1})-n_{y=1,B}(\phi_i)}{n_B}\right)\frac{1}{N}$$
@@ -78,3 +78,16 @@ We then need to subtract off the randomized curve area which is given by:
 $$\text{Randomized Qini Area} = \frac{1}{2}\left(\frac{n_{y=1,A}}{n_A} - \frac{n_{y=1,B}}{n_B}\right)$$
 and so the Qini coefficient is:
 $$Q = \text{Qini Curve Area} - \text{Randomized Qini Area}$$
+
+## Alternate Qini-style curves
+
+Unfortunately, with the Transformed Outcome method, there is a real risk of overfitting to the `treatment` label. In this case, the Qini curve as defined above could give values that are deceptively inflated. To correct for this, we implemented two alternate Qini-style curves. First, the **Cumulative Gain Chart** ([Gutierrez 2016](http://proceedings.mlr.press/v67/gutierrez17a/gutierrez17a.pdf)) finds the lift within the subset of the population up to \\(\phi\\), then multiplies this by \\(\phi\\) to scale the resulting quantity to match the Qini curve:
+
+$$\mbox{Cumulative gain}(\phi) \left( \frac{n_{y=1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right)$$
+
+Alternatively, we also implement what we call the **Adjusted Qini curve**, which we define as follows:
+
+$$\mbox{Adjusted Qini}(\phi) = \frac{n_{t,1}(\phi)}{N_t} - \frac{n_{c,1}(\phi) n_t(\phi)}{n_c (\phi) N_t}$$
+
+We emphasize that the cumulative gains chart is less biased than the adjusted Qini curve, but the adjusted Qini can be useful when the percentage targeted is small and treatment group members are valued disproportionately higher. In such a case, the adjusted Qini overvalues treatment group information to prevent overspending.
+
