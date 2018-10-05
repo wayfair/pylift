@@ -26,8 +26,8 @@ for mod_name in MOCK_MODULES:
 # -- Project information -----------------------------------------------------
 
 project = 'pylift'
-copyright = '2018, Robert Yi'
-author = 'Robert Yi'
+copyright = '2018, the authors'
+author = 'Robert Yi, Will Frost'
 
 # The short X.Y version
 version = ''

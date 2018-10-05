@@ -50,7 +50,7 @@ class TransformedOutcome(BaseProxyMethod):
     """
 
     @staticmethod
-    def _transform_func(treatment, outcome):
+    def _transform_func(treatment, outcome, p="infer"):
         """Function that executes the Transformed Outcome.
 
         Parameters
@@ -59,6 +59,10 @@ class TransformedOutcome(BaseProxyMethod):
             Array of 1s and 0s indicating treatment.
         outcome : array-like
             Array of 1s and 0s indicating outcome.
+        p : float or np.array, optional
+            Probability of observing a treatment=1 flag, used for the
+            transformation. If no value is given, probability is inferred from
+            `treatment'.
 
         Returns
         -------
@@ -72,19 +76,24 @@ class TransformedOutcome(BaseProxyMethod):
         outcome[outcome==0] = EPS
         y = (treatment*2 - 1)*outcome
         # Change nonzero outcomes (currently 1 or -1) according to test/control split.
-        p = len(treatment[treatment==1])/len(treatment)
+        if p == "infer":
+            p = len(treatment[treatment==1])/len(treatment)
         ones = abs(y)>EPS
         y[ones] = ((treatment[ones]-p)/(p*(1-p)))*outcome[ones] # Change the 1s.
         return y
 
     @staticmethod
-    def _untransform_func(y):
+    def _untransform_func(ys, p="infer"):
         """Function that recovers original data from Transformed Outcome.
 
         Parameters
         ----------
-        y : array-like
+        ys : array-like
             Transformed label.
+        p : float or np.array, optional
+            Probability of observing a treatment=1 flag, used to reverse the
+            transformation. If no value is given, probability is inferred from
+            `ys`.
 
         Returns
         -------
@@ -94,19 +103,20 @@ class TransformedOutcome(BaseProxyMethod):
             Array of 1s and 0s indicating outcome.
 
         """
-        y = np.array(y)
-        p = len(y[y>0])/len(y)
-        treatment = np.zeros(y.shape)
-        outcome = np.zeros(y.shape)
-        nonzeros = (abs(y)!=EPS)
-        # Get treatment back (binary depending on sign of y).
-        treatment[y==-EPS] = 0
-        treatment[y==EPS] = 1
-        treat = (np.sign(y)+1)/2 # One or zero for sign.
+        ys = np.array(ys)
+        if p == "infer":
+            p = len(ys[ys>0])/len(ys)
+        treatment = np.zeros(ys.shape)
+        outcome = np.zeros(ys.shape)
+        nonzeros = (abs(ys)!=EPS)
+        # Get treatment back (binary depending on sign of ys).
+        treatment[ys==-EPS] = 0
+        treatment[ys==EPS] = 1
+        treat = (np.sign(ys)+1)/2 # One or zero for sign.
         treatment[nonzeros] = treat[nonzeros]
-        # Get outcome back (EPS, or transformation of pure y value).
-        outcome[abs(y)==EPS] = 0
-        outcome[nonzeros] = y[nonzeros]*(p*(1-p))/(treatment[nonzeros]-p)
+        # Get outcome back (EPS, or transformation of pure ys value).
+        outcome[abs(ys)==EPS] = 0
+        outcome[nonzeros] = ys[nonzeros]*(p*(1-p))/(treatment[nonzeros]-p)
         return treatment, outcome
 
     def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):

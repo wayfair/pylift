@@ -5,7 +5,7 @@ Implementation can be as simple as follows:
 
 ```
 from pylift.proxymethods import TransformedOutcome
-up = TransformedOutcome(df1, col_treatment='Test', col_outcome='Converted')
+up = TransformedOutcome(df1, col_treatment='Treatment', col_outcome='Converted')
 
 up.randomized_search()
 up.fit(**up.rand_search_.best_params_)
