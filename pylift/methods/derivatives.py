@@ -59,6 +59,10 @@ class TransformedOutcome(BaseProxyMethod):
             Array of 1s and 0s indicating treatment.
         outcome : array-like
             Array of 1s and 0s indicating outcome.
+        p : float or np.array, optional
+            Probability of observing a treatment=1 flag, used for the
+            transformation. If no value is given, probability is inferred from
+            `treatment'.
 
         Returns
         -------
@@ -86,6 +90,10 @@ class TransformedOutcome(BaseProxyMethod):
         ----------
         ys : array-like
             Transformed label.
+        p : float or np.array, optional
+            Probability of observing a treatment=1 flag, used to reverse the
+            transformation. If no value is given, probability is inferred from
+            `ys`.
 
         Returns
         -------
