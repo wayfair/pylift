@@ -15,7 +15,7 @@ Welcome to pylift's documentation!
    installation
    introduction
    quick-start
-   structure
+   usage
    evaluation
 
 Indices and tables
