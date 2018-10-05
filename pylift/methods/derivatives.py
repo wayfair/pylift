@@ -50,7 +50,7 @@ class TransformedOutcome(BaseProxyMethod):
     """
 
     @staticmethod
-    def _transform_func(treatment, outcome, p=None):
+    def _transform_func(treatment, outcome, p="infer"):
         """Function that executes the Transformed Outcome.
 
         Parameters
@@ -76,14 +76,14 @@ class TransformedOutcome(BaseProxyMethod):
         outcome[outcome==0] = EPS
         y = (treatment*2 - 1)*outcome
         # Change nonzero outcomes (currently 1 or -1) according to test/control split.
-        if not p:
+        if p == "infer":
             p = len(treatment[treatment==1])/len(treatment)
         ones = abs(y)>EPS
         y[ones] = ((treatment[ones]-p)/(p*(1-p)))*outcome[ones] # Change the 1s.
         return y
 
     @staticmethod
-    def _untransform_func(ys, p=None):
+    def _untransform_func(ys, p="infer"):
         """Function that recovers original data from Transformed Outcome.
 
         Parameters
@@ -104,7 +104,7 @@ class TransformedOutcome(BaseProxyMethod):
 
         """
         ys = np.array(ys)
-        if not p:
+        if p == "infer":
             p = len(ys[ys>0])/len(ys)
         treatment = np.zeros(ys.shape)
         outcome = np.zeros(ys.shape)

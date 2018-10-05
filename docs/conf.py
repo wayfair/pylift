@@ -23,6 +23,13 @@ MOCK_MODULES = ['matplotlib', 'matplotlib.pylab', 'matplotlib.pyplot', 'numpy', 
 for mod_name in MOCK_MODULES:
    sys.modules[mod_name] = mock.Mock()
 
+# Remove the Edit on Github.
+html_context = {
+    "display_github": False, # Add 'Edit on Github' link instead of 'View page source'
+    "last_updated": True,
+    "commit": False,
+}
+
 # -- Project information -----------------------------------------------------
 
 project = 'pylift'
