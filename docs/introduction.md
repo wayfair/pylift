@@ -53,7 +53,7 @@ prediction of uplift.
 Once the model has been made, evaluation is traditionally accomplished using
 what is known as a Qini curve. The Qini curve is defined as
 $$\text{Qini curve}(\phi) = \frac{n_{A,y=1}(\phi)}{n_A} - \frac{n_{B,y=1}(\phi)}{n_B}$$
-where \\(phi\\) is the fraction of population treated (in either A or B) ordered
+where \\(\phi\\) is the fraction of population treated (in either A or B) ordered
 by predicted uplift (from highest to lowest). "Random chance" is therefore a
 model that cannot distinguish positive and negative uplift and results in a
 straight line from \\((0,0)\\) to $$(1, \frac{n_{A,y=1}}{n_A} -
