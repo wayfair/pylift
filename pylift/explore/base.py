@@ -208,7 +208,7 @@ def _NIV_bootstrap(df, feats, n_bins=10, perc=[20,80], n_iter=100, frac=0.5, col
 
     Returns
     -------
-     - means_dict, low_perc_dict, high_perc_dict = dictionary of means, low percentile, high percentile for each feature across the boostrapped samples
+    - means_dict, low_perc_dict, high_perc_dict = dictionary of means, low percentile, high percentile for each feature across the boostrapped samples
     """
 
     # array of NIV dictionaries (one for each iteration)

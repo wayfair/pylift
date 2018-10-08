@@ -15,4 +15,12 @@ print(up.test_results_.Q_aqini)
 ```
 
 `up.fit()` can also be passed a flag `productionize=True`, which when `True`
-will create a productionizable model trained over the entire data set, stored in `self.model_final` (though it is contentious whether it's safe to use a model that has not been evaluated in production -- if you have enough data, it may be prudent not to). This can then be pickled with `self.model_final.to_pickle(PATH)`, as usually done with `sklearn`-style models.
+will create a productionizable model trained over the entire data set, stored
+in `self.model_final` (though it is contentious whether it's safe to use a
+model that has not been evaluated in production -- if you have enough data, it
+may be prudent not to). This can then be pickled with
+`self.model_final.to_pickle(PATH)`, as usually done with `sklearn`-style
+models.
+
+A fully-fledged example of **pylift** in action can be found in
+`pylift/examples/simulated_data/sample.ipynb`.
