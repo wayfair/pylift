@@ -33,8 +33,8 @@ class TransformedOutcome(BaseProxyMethod):
     train_test_split, optional
         If not None, stratify is used as input into train_test_split.
     scoring_method : string or list, optional
-        Either qini, aqini, cgains or max_ prepended to any of the previous
-        values. Any strings available to the parameter `scoring` in
+        Either `qini`, `aqini`, `cgains` or `max_` prepended to any of the
+        previous values. Any strings available to the parameter `scoring` in
         `sklearn.model_selection.RandomizedSearchCV` can also be passed.
     scoring_cutoff : float or dict, optional
         The fraction of observations used to score qini for hyperparam

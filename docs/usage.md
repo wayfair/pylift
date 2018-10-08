@@ -1,14 +1,21 @@
-# Usage
-
-More in-depth usage of **pylift** can be attained by realizing that most attributes of the `TransformedOutcome` class (and so, the `BaseProxyMethod` class) simply wrap `sklearn` classes and functions.  Therefore, it's generally possible to do anything you can do with `sklearn` within `pylift` as well.
+# Usage: modeling
 
 ## Instantiation
 
-If you followed the [Quick start](evaluation), you hopefully already have a sense of how **pylift** is structured: the package is class-based and so the entire modeling process takes place within instantiation of a `TransformedOutcome` class. This method in particular implements the Transformed Outcome transformation (Athey 2016):
+If you followed the [Quick start](evaluation), you hopefully already have a
+sense of how **pylift** is structured: the package is class-based and so the
+entire modeling process takes place within instantiation of a
+`TransformedOutcome` class. This method in particular implements the
+Transformed Outcome method, as described in [Introduction to
+uplift](introduction).
 
-$$Y^{*} = Y \frac{W - p}{p(1-p)}$$
-
-In particular, the `TransformedOutcome` class inherits from a `BaseProxyMethod` class, and only adds to said class a `_transform_func` and an `_untransform_func` which perform the transformation to obtain \\(Y^{*} \\) from \\(Y\\) and \\(W\\) and vice versa, respectively. Custom transformation methods are therefore possible by explicitly providing the `transform_func` and `untransform_func` to `BaseProxyMethod`.
+In particular, the `TransformedOutcome` class inherits from a `BaseProxyMethod`
+class, and only adds to said class a `_transform_func` and an
+`_untransform_func` which perform the transformation to obtain \\(Y^{*} \\)
+(the transformed outcome) from \\(Y\\) and \\(W\\) (1 or 0 indicating the
+presence of a treatment) and vice versa, respectively. Custom transformation
+methods are therefore possible by explicitly providing the `transform_func` and
+`untransform_func` to `BaseProxyMethod`.
 
 Instantiation is accomplished as follows:
 
@@ -16,7 +23,17 @@ Instantiation is accomplished as follows:
 up = TransformedOutcome(df, col_treatment='Treatment', col_outcome='Converted')
 ```
 
-A number of custom parameters can be passed, which are all documented in the docstring.
+A number of custom parameters can be passed, which are all documented in the
+docstring. Of particular note may be the `stratify` keyword argument (whose
+argument is directly passed to `sklearn.model_selection.train_test_split`).
+
+The instantiation step accomplishes several things:
+
+1. Define the transform function and transform the outcome (this is added to the dataframe you pass in, by default, as a new column, `TransformedOutcome`).
+1. Split the data using `train_test_split`.
+1. Set a random state (we like determinism!). This random state is used wherever possible.
+1. Define an `untransform` function and use this to define a scoring function for hyperparameter tuning. The scoring function is saved within `up.randomized_search_params` and `up.grid_search_params`, which are dictionaries that are used by default whenever `up.randomized_search()` or `up.grid_search()` are called.
+1. Define some default hyperparameters.
 
 ## Fit and hyperparameter tunings: passing custom parameters
 
@@ -30,7 +47,7 @@ up.fit(max_depth=2, nthread=-1)
 
 `XGBRegressor` is the default regressor, but a different `Regressor` object can
 also be used. To do this, pass the object to the keyword argument
-`sklearn_model` during `TransformedOutcome` instantiation. 
+`sklearn_model` during `TransformedOutcome` instantiation.
 ```
 up = TransformedOutcome(df, col_treatment='Test', col_outcome='Converted', sklearn_model=RandomForestRegressor)
 
@@ -46,9 +63,8 @@ up.grid_search(**grid_search_params)
 We tend to prefer `xgboost`, however, as it tends to give favorable results
 quickly, while also allowing the option for a custom objective function. This
 extensibility allows for the possibility of an objective function that takes
-into account \\(P(W=1)\\) within each node, though we because we have had mixed
+into account \\(P(W=1)\\) within each leaf, though we because we have had mixed
 results with this approach, we have left the package defaults as is.
-
 
 Regardless of what regressor you use, the `RandomizedSearchCV` default params
 are contained in `up.randomized_search_params`, and the `GridSearchCV` params
@@ -71,8 +87,4 @@ class as class attributes.
 `up.fit` -> `up.model`
 
 `up.fit(productionize=True)` -> `up.model_final`
-
-**References**
-
-Athey, S., & Imbens, G. W. (2015). Machine learning methods for estimating heterogeneous causal effects. stat, 1050(5).
 

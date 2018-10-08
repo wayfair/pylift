@@ -17,6 +17,14 @@ Welcome to pylift's documentation!
    quick-start
    usage
    evaluation
+   raw-data
+
+**pylift** has two main features:
+
+#. A `TransformedOutcome` class (inheriting a more general `BaseProxyMethod` class) that allows for full end-to-end   uplift modeling.
+#. An `UpliftEval` class that allows for evaluation of any model prediction. This class is used within the            `TransformedOutcome` class, but can be called independently to evaluate the performance of, for example, scores from  a modeling approach external to **pylift**.
+
+The `TransformedOutcome` class (and so, the `BaseProxyMethod` class) simply wraps `sklearn` classes and functions.    Therefore, it's generally possible to do anything you can do with `sklearn` within `pylift` as well. Advanced usage   of **pylift**, therefore, should feel familiar to those well-versed in `sklearn`.
 
 Indices and tables
 ==================

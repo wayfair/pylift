@@ -16,14 +16,14 @@ from ..explore.base import _add_bins, _NWOE, _NIV, _NIV_bootstrap, _plot_NWOE_bi
 class BaseProxyMethod:
     """Provide common functionalities for all label transformation methods.
 
-    Requires an input function `transform_func` that transforms `treatment`
-    and `outcome` into a single `transformed_outcome`. This is typically
-    the TOT transformation, but can be whatever you want.
+    Requires an input function `transform_func` that transforms `treatment` and
+    `outcome` into a single `transformed_outcome`. This is typically the TOT
+    transformation, but can be whatever you want.
 
-    Also complete a number of tasks that enable use of the proxy method:
-    save dataframe and important dataframe column names to class object,
-    calculate the transformed outcome, create an `untransform` method that
-    undoes `transform`.
+    Also complete a number of tasks that enable use of the proxy method: save
+    dataframe and important dataframe column names to class object, calculate
+    the transformed outcome, create an `untransform` method that undoes
+    `transform`.
 
     Parameters
     ----------
@@ -215,6 +215,18 @@ class BaseProxyMethod:
     def NWOE(self, feats_to_use=None, n_bins=10):
         """Net weight of evidence.
 
+        Parameters
+        ----------
+        feats_to_use : list, optional
+            A list of features to use. If no list is specified, all features are used.
+        n_bins : int, optional
+            Number of bins to use.
+
+        Returns
+        -------
+        ax : matplotlib.axes._subplots.AxesSubplot
+            The matplotlib axes handle.
+
         """
         feats = feats_to_use if feats_to_use else self.x_train.columns
         df_with_bins = _add_bins(self.df_train, feats, n_bins=n_bins)
@@ -223,7 +235,21 @@ class BaseProxyMethod:
         return ax
 
     def NIV(self, feats_to_use=None, n_bins=10, n_iter=3):
-        """Net information value.
+        """Net information value, calculated for each feature averaged over `n_iter` bootstrappings of `df`.
+
+        Parameters
+        ----------
+        feats_to_use : list, optional
+            A list of features to use. If no list is specified, all features are used.
+        n_bins : int, optional
+            Number of bins to use.
+        n_iter : int, optional
+            Number of iterations.
+
+        Returns
+        -------
+        ax : matplotlib.axes._subplots.AxesSubplot
+            The matplotlib axes handle.
 
         """
         feats = feats_to_use if feats_to_use else self.x_train.columns
@@ -293,24 +319,6 @@ class BaseProxyMethod:
             If False, fits the model over the train set only. Otherwise, fits
             to all data available.
 
-        Examples
-        --------
-
-        from sklearn.linear_model import LinearRegression
-        up = TransformedOutcome(sklearn_model=LinearRegression
-        )
-        # Pass a parameter dictionary.
-        linreg_params = {'normalize': True,
-                         'fit_intercept': False,
-                         'n_jobs': -1
-        }
-
-        # Pass the dictionary.
-        self.fit(**linreg_params)
-
-        # Or, pass kwargs.
-        self.fit(normalize=True)
-
         """
         if productionize:
             # Just calculate the full new model.
@@ -358,13 +366,20 @@ class BaseProxyMethod:
         n_bins : int
             Number of bins for the resulting curve to have.
         params : dict
-            Dictionary of parameters to pass to each fit. If not given, will default to `self.rand_search_.best_params_`.
+            Dictionary of parameters to pass to each fit. If not given, will
+            default to `self.rand_search_.best_params_`.
         transform_train : func, optional
-            A function that will be applied to the training data only. Extended functionality that may be useful if the distribution of the y-variable is heavy-tailed, and a transformation would produce a better model, but you still want to evaluate on the untransformed data.
+            A function that will be applied to the training data only. Extended
+            functionality that may be useful if the distribution of the
+            y-variable is heavy-tailed, and a transformation would produce a
+            better model, but you still want to evaluate on the untransformed
+            data.
         clear : boolean, optional
-            Data for the shuffle fits is saved in self.shuffle_fit_. If clear is True, this data is rewritten with each shuffle_fit iteration.
+            Data for the shuffle fits is saved in `self.shuffle_fit_`. If clear
+            is True, this data is rewritten with each shuffle_fit iteration.
         plot_type : string, optional
             Type of plot to show. Can be `aqini`, `qini`, `cgains`.
+
         """
         bootstrap_fits = []
 

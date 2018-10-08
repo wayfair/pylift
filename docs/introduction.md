@@ -1,37 +1,53 @@
 # Introduction to uplift
 
 In traditional binary classification, we attempt to predict a binary outcome
-\\(y\\) based on some set of features \\(X\\). Consequently, our success criterion is
-usually something that measures how well we can predict \\(y\\) based on values of
-\\(X\\) (e.g. accuracy, precision, recall). In uplift modeling, however, the story
-is quite different, because while we are still trying to predict the outcome
-\\(y\\), we want to predict this outcome *conditioned* on a treatment.  For
-example, in traditional classification, we might want to know if someone will
-click an ad (\\(y\\)), period, while in uplift modeling, we would want to know if
-someone will click an ad based on what kind of ad we serve them (treatment) (\\(y
-| treatment\\)).
+\\(y\\) based on some set of features \\(X\\). Consequently, our success
+criterion is usually something that measures how well we can predict \\(y\\)
+based on values of \\(X\\) (e.g. accuracy, precision, recall). In uplift
+modeling, however, the story is quite different, because while we are still
+trying to predict the outcome \\(y\\), we want to predict this outcome
+*conditioned* on a treatment. In other words, we want to find individuals for
+whom the *effect* of our treatment is largest.
 
-The practical ramifications of this constraint can be readily understood in the
-context of decision trees. In decision trees, splits are chosen to minimize
-impurity -- i.e. to maximize homogeneity of nodes. In the previously mentioned
-advertising example, this would mean finding splits that separate those who
-would visit our website from those who wouldn't. In uplift modeling, the split
-needs to be chosen to take into effect the treatment, and so roughly speaking,
-we want to sort out those who would visit our website only when shown an ad
-(serving an ad is useful) from those who would visit our website regardless
-(serving an ad is useless).
+To understand the practical ramifications of this constraint, consider a simple
+decision tree model. In a decision tree, splits are chosen to maximize the
+homogeneity of nodes. In the context of advertising, for an outcome model, this
+would mean finding splits that separate those who would visit our website from
+those who wouldn't. In uplift modeling, the split needs to be chosen to take
+into effect the treatment, and so, we want to sort out those who would visit
+our website only when shown an ad (serving an ad is useful) from those who
+would visit our website regardless (serving an ad is useless).
 
-An obvious way to do this is to change the splitting criterion, but because
-many of `sklearn`'s built-in implementations do not allow for a custom split
-criterion/optimization function, this is not completely trivial. While we could
-recreate each method to allow for this customized uplift criterion (and others
-have done this), we have discovered that `sklearn` is blazingly fast, and in
-making our own homebrew algorithms, we sacrifice some of the benefits
-(efficient hyperparameter tuning) that come with speed (the other algorithms we
-have encountered are, regrettably, slow). Thus, we seek alternate methods that
-allow us to leverage `sklearn` (and other) modules. In particular, we implement
-methods here that simply transform the data, but code the Treatment/Control
-information in the transformed outcome.
+The conceptually simplest way to do this is to change the splitting criterion,
+but because many of `sklearn`'s built-in implementations do not allow for a
+custom split criterion/optimization function, this is not completely trivial.
+While we could recreate each method to allow for this customized uplift
+criterion (and others have done this), we have discovered that `sklearn` is
+blazingly fast, and in making a homebrew algorithm, we'd sacrifice some of the
+benefits (efficient hyperparameter tuning) that come with speed (the other
+algorithms we have encountered are, regrettably, slow). Thus, we seek alternate
+methods that allow us to leverage `sklearn` (and other) modules. In particular,
+we implement methods here that simply transform the data, but code the
+Treatment/Control information in the transformed outcome.
+
+## The Transformed Outcome
+
+Our package by default implements the Transformed Outcome (Athey 2016) method, defined as:
+
+$$Y^{*} = Y \frac{W - p}{p(1-p)}$$
+
+where \\(Y^{*} \\) is the Transformed Outcome, \\(Y\\) is the outcome (1 or 0),
+\\(W\\) indicates the presence of a treatment (1 or 0), and \\( p = P(W=1) \\)
+(the treatment policy). When \\(p = 0.5\\), this amounts to labelling (treatment, outcome) pairs as follows:
+
+![](./img/transformed_outcome_small.png)
+
+The beauty of this transformation is that, in expectation,
+
+$$E[Y^{*}] = P(Y | W=1) - P(Y | W=0),$$
+
+or uplift. Any algorithm trained to predict \\(Y^{*}\\), then, gives a
+prediction of uplift.
 
 ## The Qini curve
 Once the model has been made, evaluation is traditionally accomplished using
@@ -81,7 +97,7 @@ $$Q = \text{Qini Curve Area} - \text{Randomized Qini Area}$$
 
 ## Alternate Qini-style curves
 
-Unfortunately, with the Transformed Outcome method, there is a real risk of overfitting to the `treatment` label. In this case, the Qini curve as defined above could give values that are deceptively inflated. To correct for this, we implemented two alternate Qini-style curves. First, the **Cumulative Gain Chart** ([Gutierrez 2016](http://proceedings.mlr.press/v67/gutierrez17a/gutierrez17a.pdf)) finds the lift within the subset of the population up to \\(\phi\\), then multiplies this by \\(\phi\\) to scale the resulting quantity to match the Qini curve:
+Unfortunately, with the Transformed Outcome method, there is a real risk of overfitting to the `treatment` label. In this case, the Qini curve as defined above could give values that are deceptively inflated. To correct for this, we implemented two alternate Qini-style curves. First, the **Cumulative Gain Chart** (Gutierrez 2017) finds the lift within the subset of the population up to \\(\phi\\), then multiplies this by \\(\phi\\) to scale the resulting quantity to match the Qini curve:
 
 $$\mbox{Cumulative gain}(\phi) \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right).$$
 
@@ -92,4 +108,11 @@ Alternatively, we also implement what we call the **Adjusted Qini curve**, which
 $$\mbox{Adjusted Qini}(\phi) = \frac{n_{t,1}(\phi)}{N_t} - \frac{n_{c,1}(\phi) n_t(\phi)}{n_c (\phi) N_t}$$
 
 We emphasize that the cumulative gains chart is less biased than the adjusted Qini curve, but the adjusted Qini can be useful when the percentage targeted is small and treatment group members are valued disproportionately higher. In such a case, the adjusted Qini overvalues treatment group information to prevent overspending.
+
+
+**References**
+
+Athey, S., & Imbens, G. W. (2015). Machine learning methods for estimating heterogeneous causal effects. stat, 1050(5).
+
+Gutierrez, P., & Gérardy, J. Y. (2017, July). Causal Inference and Uplift Modelling: A Review of the Literature. In International Conference on Predictive Applications and APIs (pp. 1-13).
 
