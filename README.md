@@ -19,6 +19,6 @@ Licensed under the BSD-2-Clause by the authors.
 Athey, S., & Imbens, G. W. (2015). Machine learning methods for estimating
 heterogeneous causal effects. stat, 1050(5).
 
-Gutierrez, P., & Gérardy, J. Y. (2017, July). Causal Inference and Uplift Modelling: A Review of the Literature. In International Conference on Predictive Applications and APIs (pp. 1-13).
+Gutierrez, P., & Gérardy, J. Y. (2017). Causal Inference and Uplift Modelling: A Review of the Literature. In International Conference on Predictive Applications and APIs (pp. 1-13).
 
-Hitsch, G., & Misra, S. (2018, January). Heterogeneous Treatment Effects and Optimal Targeting Policy Evaluation. Preprint
+Hitsch, G., & Misra, S. (2018). Heterogeneous Treatment Effects and Optimal Targeting Policy Evaluation. Preprint

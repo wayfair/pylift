@@ -40,9 +40,7 @@ where \\(Y^{*} \\) is the Transformed Outcome, \\(Y\\) is the outcome (1 or 0),
 \\(W\\) indicates the presence of a treatment (1 or 0), and \\( p = P(W=1) \\)
 (the treatment policy). When \\(p = 0.5\\), this amounts to labelling (treatment, outcome) pairs as follows:
 
-<p align="center">
-<img src ="./_images/transformed_outcome.png" width="50%">
-</p>
+![](./img/transformed_outcome_small.png)
 
 The beauty of this transformation is that, in expectation,
 
