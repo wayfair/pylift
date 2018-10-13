@@ -419,8 +419,8 @@ def get_scores(treatment, outcome, prediction, p, scoring_range=(0,1), plot_type
     def auc(method='qini'):
         # Calculate the area.
         uplift_last = 0
-        nt1o1 = EPS
-        nt0o1 = EPS
+        nt1o1 = 0
+        nt0o1 = 0
         nt1 = EPS
         nt0 = EPS
         pred_riemann = 0
@@ -513,7 +513,7 @@ class UpliftEval:
         # Deal with `p`, in case float or None.
         if type(p) == str:
             if p == "infer":
-                self.p = np.ones(self.prediction.shape)*len(treatment[treatment==1])/len(treatment)
+                self.p = np.ones(self.prediction.shape)*len(self.treatment[self.treatment==1])/len(self.treatment)
         elif type(p) == float:
             self.p = np.ones(self.prediction.shape)*p
         else:  # If array.
