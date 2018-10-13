@@ -4,4 +4,4 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python eval_test.py
+  - python ./tests/eval_test.py
