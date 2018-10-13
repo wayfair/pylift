@@ -4,6 +4,7 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install --no-cache-dir --upgrade .  # This should be changed once on pypi.
 
 script:
   - python ./pylift/tests/eval_test.py
