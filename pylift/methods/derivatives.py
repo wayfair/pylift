@@ -110,7 +110,14 @@ class TransformedOutcome(BaseProxyMethod):
         treatment[t1] = 1  # All other entrise are by default 0.
 
         # Get the policy back, if not given. p ranges between 0 and 1. Hack here: as long as it's bigger than EPS and less than 1-EPS, we can recover it.
-        if not p:
+        if (type(p) == float):
+            outcome[t1] = ys[t1]*p
+            outcome[t0] = -ys[t0]*(1-p)
+            p = np.ones(ys.shape)*p
+        if (type(p) == np.ndarray):
+            outcome[t1] = ys[t1]*p[t1]
+            outcome[t0] = -ys[t0]*(1-p[t0])
+        else:
             t1o1 = t1 & (ys>=1)
             t1o0 = t1 & (ys<=1)
             t0o1 = t0 & (ys<=-1)
@@ -122,14 +129,10 @@ class TransformedOutcome(BaseProxyMethod):
             p[t0o0] = 1+EPS/ys[t0o0]
             outcome[t1] = ys[t1]*p[t1]
             outcome[t0] = -ys[t0]*(1-p[t0])
-        else:
-            outcome[t1] = ys[t1]*p
-            outcome[t0] = -ys[t0]*(1-p)
-            p = np.ones(ys.shape)*p
         outcome[np.abs(outcome) - EPS < TOL] = 0
 
         return treatment, outcome, p
 
-    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', col_policy=None, continuous_outcome="infer", random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):
+    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', col_policy=None, continuous_outcome='infer', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):
 
         super().__init__(df, transform_func=self._transform_func, untransform_func=self._untransform_func, col_treatment=col_treatment, col_outcome=col_outcome, col_transformed_outcome=col_transformed_outcome, col_policy=col_policy, continuous_outcome=continuous_outcome, random_state=random_state, test_size=test_size, stratify=stratify, scoring_cutoff=scoring_cutoff, scoring_method=scoring_method, sklearn_model=sklearn_model)
