@@ -385,6 +385,7 @@ def get_scores(treatment, outcome, prediction, p, scoring_range=(0,1), plot_type
     treatment = _ensure_array(treatment)
     outcome = _ensure_array(outcome)
     prediction = _ensure_array(prediction)
+    p = _ensure_array(p)
 
     Nt1o1, Nt0o1, Nt1o0, Nt0o0 = _get_counts(treatment, outcome, p)
     Nt1, Nt0, N = _get_tc_counts(Nt1o1, Nt0o1, Nt1o0, Nt0o0)
