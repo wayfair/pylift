@@ -40,11 +40,12 @@ class BaseProxyMethod:
         Name of the original outcome column. Depends on input dataframe.
     col_transformed_outcome : string, optional
         Name of the new, transformed outcome. Can be whatever you want.
-    col_policy : string, optional
+    col_policy : string or float, optional
         Name of the column that indicates treatment policy (probability of
-        treatment). If not given, it is assumed that application of treatment
-        was randomly assigned with the same probability across the entire
-        population.
+        treatment). If a float is given, the treatment policy is assumed to be
+        even across all rows. If not given, it is assumed that application of
+        treatment was randomly assigned with the same probability across the
+        entire population.
     continuous_outcome : "infer" or Bool, optional
         Flag that indicates whether or not the Outcome column is continuous.
         Inferred by default.
