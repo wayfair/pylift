@@ -32,15 +32,23 @@ class BaseProxyMethod:
     transform_func : function
         Function that takes two keyword arguments, `treatment` and
         `outcome`, and outputs a transformed outcome.
-    untransform_func : function, optional
-        Function that inverts `transform_func`. If this is not specified,
-        it will invert `transform_func`.
+    untransform_func : function
+        Function that inverts `transform_func`.
     col_treatment : string, optional
         Name of the treatment column. Depends on input dataframe.
     col_outcome : string, optional
         Name of the original outcome column. Depends on input dataframe.
     col_transformed_outcome : string, optional
         Name of the new, transformed outcome. Can be whatever you want.
+    col_policy : string or float, optional
+        Name of the column that indicates treatment policy (probability of
+        treatment). If a float is given, the treatment policy is assumed to be
+        even across all rows. If not given, it is assumed that application of
+        treatment was randomly assigned with the same probability across the
+        entire population.
+    continuous_outcome : "infer" or Bool, optional
+        Flag that indicates whether or not the Outcome column is continuous.
+        Inferred by default.
     random_state : int
         Random seed for deterministic behavior.
     test_size : float
@@ -57,42 +65,82 @@ class BaseProxyMethod:
         """ scoring function to be passed to make_scorer.
 
         """
-        treatment_true, outcome_true = self._untransform_func(y_true)
-        scores = get_scores(treatment_true, outcome_true, y_pred, scoring_range=(0,self.scoring_cutoff[method]), plot_type=plot_type)
+        if self.individual_policy_given:  # If indiv. policy is given, it needs to be inferred in the untransform step.
+            treatment_true, outcome_true, p = self.untransform(y_true)
+        else:  # Otherwise, if uniform, it can be passed as an argument.
+            treatment_true, outcome_true, p = self.untransform(y_true, self.p)
+        scores = get_scores(treatment_true, outcome_true, y_pred, p, scoring_range=(0,self.scoring_cutoff[method]), plot_type=plot_type)
         return scores[score_name]
 
-    def __init__(self, df, transform_func, untransform_func=None, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, scoring_method='aqini', sklearn_model=XGBRegressor):
-        self.random_state = random_state
-        self.best_score = 0
+    def __init__(self, df, transform_func, untransform_func, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', col_policy=None, continuous_outcome='infer', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, scoring_method='aqini', sklearn_model=XGBRegressor):
 
-        # Define transformation functions.
-        self.transform = transform_func
-        self.untransform = untransform_func
+        # ACCOUNT FOR MODULARITY.
+        # To allow for modular behavior, different types can be allowed for a
+        # number of the above keyword arguments. Below, the snippets of code
+        # that account for this modularity are labeled as AFMB(#), which stands
+        # for Account for Modular Behavior.
 
+        # Explicitly define some flags that infer the state specified by the
+        # modular inputs. I.e. get the `type` and interpret what it means.
+        train_test_split_specified = type(df) == tuple
+        self.individual_policy_given = type(col_policy) == str
 
-        # Train test split.
-        if type(df) == tuple:
+        # AFMB(1): Is train test split specified?
+        # If train test split is specified, combine and create a single dataframe.
+        if train_test_split_specified:
             df_train = df[0]
             df_test = df[1]
             df = pd.concat([df_train, df_test], keys=[0,1])
-            # Calculate transformed outcome.
-            df[col_transformed_outcome] = self.transform(treatment=df[col_treatment], outcome=df[col_outcome])
+
+        # AFMB(2): Is a policy for each individual? If so, is it a row-level
+        # specification?
+        # Deal with possible inputs and raise exception if not acceptable.
+        if not col_policy:
+            treatment = df[col_treatment]
+            self.p = len(treatment[treatment==1])/len(treatment)
+        elif self.individual_policy_given:
+            self.p = df[col_policy]
+        elif type(col_policy) == float:  # In the case that it is a numerical value.
+            self.p = col_policy
+        else:
+            raise Exception('col_policy must be a str (column name), float (probability of treatment), or None.')
+
+        # AFMB(3): Is `df[col_outcome]` a continuous variable?
+        # By default, this is inferred from the number of distinct values of
+        # the Outcome column.
+        if continuous_outcome == 'infer':
+            num_outcomes = df[col_outcome].nunique()
+            continuous_outcome = num_outcomes > 2  # Assign True or False depending on the number of outcomes.
+
+        # AFMB(2) and (3) have an interaction problem in the scenario where
+        # both a continuous variable is given for outcome and the policy is
+        # specified by row. If this happens, raise exception.
+        if continuous_outcome and self.individual_policy_given:
+            raise Exception('Cannot give continuous outcome and row-level treatment policy (col_policy).')
+
+
+        # BEGIN UNMODULAR BEHAVIOR.
+
+        # Save some inputs as class attributes.
+        self.random_state = random_state
+        self.transform = transform_func
+        self.untransform = untransform_func
+
+        # Perform outcome transformation.
+        df[col_transformed_outcome] = self.transform(treatment=df[col_treatment], outcome=df[col_outcome], p=self.p)
+        # Train test split (or recover the original train test split).
+        if train_test_split_specified:
             df_train = df.xs(0)
             df_test = df.xs(1)
         else:
-            # Calculate transformed outcome.
-            df[col_transformed_outcome] = self.transform(treatment=df[col_treatment], outcome=df[col_outcome])
-            # Allow for either string or train-test-split style.
-            if type(stratify)==str:
-                df_train, df_test = train_test_split(df, test_size=test_size, random_state=self.random_state, stratify=df[stratify])
-            else:
-                df_train, df_test = train_test_split(df, test_size=test_size, random_state=self.random_state, stratify=stratify)
+            df_train, df_test = train_test_split(df, test_size=test_size, random_state=self.random_state, stratify=stratify)
 
-
-        # Saving data to class object.
+        # Save data to class attributes.
+        # Full dataframes.
         self.df = df
         self.df_train = df_train
         self.df_test = df_test
+        # Column names.
         self.col_treatment = col_treatment
         self.col_outcome = col_outcome
         self.col_transformed_outcome = col_transformed_outcome
@@ -105,34 +153,24 @@ class BaseProxyMethod:
         self.y_test = df_test[col_outcome]
         self.y = df[col_outcome]
         # Features.
-        self.x_train = df_train.drop([col_treatment, col_outcome, col_transformed_outcome], axis=1)
-        self.x_test = df_test.drop([col_treatment, col_outcome, col_transformed_outcome], axis=1)
-        self.x = df.drop([col_treatment, col_outcome, col_transformed_outcome], axis=1)
+        feature_columns = [column for column in df.columns if column not in [col_treatment, col_outcome, col_transformed_outcome, col_policy]]
+        self.x_train = df_train[feature_columns]
+        self.x_test = df_test[feature_columns]
+        self.x = df[feature_columns]
         # Treatment.
         self.tc_train = df_train[col_treatment]
         self.tc_test = df_test[col_treatment]
         self.tc = df[col_treatment]
-
+        # Policy.
+        if self.individual_policy_given:
+            self.p_train = df_train[col_policy]
+            self.p_test = df_test[col_policy]
+        else:
+            self.p_train = self.p
+            self.p_test = self.p
         self.sklearn_model = sklearn_model
 
-        # Create `untransform` function, if not explicitly specified.
-        if self.untransform is None:
-            # Get list of unique (outcome, transform(outcome)) pairs.
-            pairs = set(zip(list(self.transformed_y), list(self.tc), list(self.y)))
-            # Check that it's a bijective mapping -- if not, warn.
-            if len(pairs)!=len(set(zip(self.tc, self.y))):
-                warnings.warn("Outcome -> Transformation is not bijective. Pass a custom `untransform` function.", UserWarning)
-            untransform_dict = {item[0]: item[1:] for item in pairs}
-            def untransform(y):
-                try:
-                    result = [untransform_dict[i] for i in y]
-                    result = list(zip(*result))
-                except:
-                    result = untransform_dict[y]
-                return result[0], result[1]
-            self.untransform = untransform
-
-        # For backwards compatibility, create a bunch of plotting functions using the plot_type in the function name.
+        # For backwards compatibility, create plot functions using the plot_type in the function name.
         plot_types = ['qini', 'aqini', 'cgains', 'cuplift', 'uplift', 'balance']
         for plot_type in plot_types:
             new_func = functools.partial(self.plot, plot_type=plot_type)
@@ -330,11 +368,11 @@ class BaseProxyMethod:
 
             # Calculate evaluation metrics on test set.
             self.transformed_y_test_pred = self.model.predict(self.x_test)
-            self.test_results_ = UpliftEval(self.tc_test, self.y_test, self.transformed_y_test_pred)
+            self.test_results_ = UpliftEval(self.tc_test, self.y_test, self.transformed_y_test_pred, p=self.p_test)
 
             # Calculate evaluation metrics for train set.
             self.transformed_y_train_pred = self.model.predict(self.x_train)
-            self.train_results_ = UpliftEval(self.tc_train, self.y_train, self.transformed_y_train_pred)
+            self.train_results_ = UpliftEval(self.tc_train, self.y_train, self.transformed_y_train_pred, p=self.p_train)
 
     def noise_fit(self, iterations=10, n_bins=10, **kwargs):
         """Shuffle predictions to get a sense of the range of possible curves you
@@ -352,7 +390,7 @@ class BaseProxyMethod:
         shuffled_predictions = copy.deepcopy(self.transformed_y_test_pred)
         for i in range(iterations):
             np.random.shuffle(shuffled_predictions)
-            upev = UpliftEval(self.tc_test, self.y_test, shuffled_predictions, n_bins=n_bins)
+            upev = UpliftEval(self.tc_test, self.y_test, shuffled_predictions, n_bins=n_bins, p=self.p_test)
             noise_fits.append(upev)
         self.noise_fits = noise_fits
 

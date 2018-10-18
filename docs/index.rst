@@ -17,7 +17,9 @@ Welcome to pylift's documentation!
    quick-start
    usage
    evaluation
+   policy
    raw-data
+   contributing
 
 **pylift** has two main features:
 

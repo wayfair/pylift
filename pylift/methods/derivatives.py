@@ -10,7 +10,8 @@ from xgboost import XGBClassifier, XGBRegressor
 import numpy as np
 import pickle
 
-EPS = 1e-37
+TOL = 1e-37
+EPS = 1e-20
 
 class TransformedOutcome(BaseProxyMethod):
     """Implement Transformed Outcome [Trees] method.
@@ -25,6 +26,15 @@ class TransformedOutcome(BaseProxyMethod):
         Name of the original outcome column. Depends on input dataframe.
     col_transformed_outcome : string, optional
         Name of the new, transformed outcome. Can be whatever you want.
+    col_policy : string or float, optional
+        Name of the column that indicates treatment policy (probability of
+        treatment). If a float is given, the treatment policy is assumed to be
+        even across all rows. If not given, it is assumed that application of
+        treatment was randomly assigned with the same probability across the
+        entire population.
+    continuous_outcome : "infer" or Bool, optional
+        Flag that indicates whether or not the Outcome column is continuous.
+        Inferred by default.
     random_state : int
         Random seed for deterministic behavior.
     test_size : float
@@ -50,7 +60,7 @@ class TransformedOutcome(BaseProxyMethod):
     """
 
     @staticmethod
-    def _transform_func(treatment, outcome, p="infer"):
+    def _transform_func(treatment, outcome, p):
         """Function that executes the Transformed Outcome.
 
         Parameters
@@ -59,10 +69,9 @@ class TransformedOutcome(BaseProxyMethod):
             Array of 1s and 0s indicating treatment.
         outcome : array-like
             Array of 1s and 0s indicating outcome.
-        p : float or np.array, optional
+        p : float or np.array
             Probability of observing a treatment=1 flag, used for the
-            transformation. If no value is given, probability is inferred from
-            `treatment'.
+            transformation.
 
         Returns
         -------
@@ -74,16 +83,12 @@ class TransformedOutcome(BaseProxyMethod):
         outcome = np.array(outcome).astype(float)
         # Make sure outcome=0 maps to EPS, to preserve sign.
         outcome[outcome==0] = EPS
-        y = (treatment*2 - 1)*outcome
-        # Change nonzero outcomes (currently 1 or -1) according to test/control split.
-        if p == "infer":
-            p = len(treatment[treatment==1])/len(treatment)
-        ones = abs(y)>EPS
-        y[ones] = ((treatment[ones]-p)/(p*(1-p)))*outcome[ones] # Change the 1s.
+        # Change nonzero outcomes according to treatment/control split.
+        y = outcome*((treatment-p)/(p*(1-p)))
         return y
 
     @staticmethod
-    def _untransform_func(ys, p="infer"):
+    def _untransform_func(ys, p=None):
         """Function that recovers original data from Transformed Outcome.
 
         Parameters
@@ -92,8 +97,7 @@ class TransformedOutcome(BaseProxyMethod):
             Transformed label.
         p : float or np.array, optional
             Probability of observing a treatment=1 flag, used to reverse the
-            transformation. If no value is given, probability is inferred from
-            `ys`.
+            transformation.
 
         Returns
         -------
@@ -104,21 +108,40 @@ class TransformedOutcome(BaseProxyMethod):
 
         """
         ys = np.array(ys)
-        if p == "infer":
-            p = len(ys[ys>0])/len(ys)
+
         treatment = np.zeros(ys.shape)
         outcome = np.zeros(ys.shape)
         nonzeros = (abs(ys)!=EPS)
-        # Get treatment back (binary depending on sign of ys).
-        treatment[ys==-EPS] = 0
-        treatment[ys==EPS] = 1
-        treat = (np.sign(ys)+1)/2 # One or zero for sign.
-        treatment[nonzeros] = treat[nonzeros]
-        # Get outcome back (EPS, or transformation of pure ys value).
-        outcome[abs(ys)==EPS] = 0
-        outcome[nonzeros] = ys[nonzeros]*(p*(1-p))/(treatment[nonzeros]-p)
-        return treatment, outcome
 
-    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):
+        # Get the treatment label (positive or negative).
+        t1 = (ys > 0)
+        t0 = (ys < 0)
+        treatment[t1] = 1  # All other entrise are by default 0.
 
-        super().__init__(df, transform_func=self._transform_func, untransform_func=self._untransform_func, col_treatment=col_treatment, col_outcome=col_outcome, col_transformed_outcome=col_transformed_outcome, random_state=random_state, test_size=test_size, stratify=stratify, scoring_cutoff=scoring_cutoff, scoring_method=scoring_method, sklearn_model=sklearn_model)
+        # Get the policy back, if not given. p ranges between 0 and 1. Hack here: as long as it's bigger than EPS and less than 1-EPS, we can recover it.
+        if (type(p) == float):
+            outcome[t1] = ys[t1]*p
+            outcome[t0] = -ys[t0]*(1-p)
+            p = np.ones(ys.shape)*p
+        if (type(p) == np.ndarray):
+            outcome[t1] = ys[t1]*p[t1]
+            outcome[t0] = -ys[t0]*(1-p[t0])
+        else:
+            t1o1 = t1 & (ys>=1)
+            t1o0 = t1 & (ys<=1)
+            t0o1 = t0 & (ys<=-1)
+            t0o0 = t0 & (ys>-1)
+            p = np.zeros(ys.shape)
+            p[t1o1] = 1/ys[t1o1]
+            p[t1o0] = EPS/ys[t1o0]
+            p[t0o1] = 1+1/ys[t0o1]
+            p[t0o0] = 1+EPS/ys[t0o0]
+            outcome[t1] = ys[t1]*p[t1]
+            outcome[t0] = -ys[t0]*(1-p[t0])
+        outcome[np.abs(outcome) - EPS < TOL] = 0
+
+        return treatment, outcome, p
+
+    def __init__(self, df, col_treatment='Treatment', col_outcome='Outcome', col_transformed_outcome='TransformedOutcome', col_policy=None, continuous_outcome='infer', random_state=2701, test_size=0.2, stratify=None, scoring_cutoff=1, sklearn_model=XGBRegressor, scoring_method='cgains'):
+
+        super().__init__(df, transform_func=self._transform_func, untransform_func=self._untransform_func, col_treatment=col_treatment, col_outcome=col_outcome, col_transformed_outcome=col_transformed_outcome, col_policy=col_policy, continuous_outcome=continuous_outcome, random_state=random_state, test_size=test_size, stratify=stratify, scoring_cutoff=scoring_cutoff, scoring_method=scoring_method, sklearn_model=sklearn_model)

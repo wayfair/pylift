@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt, matplotlib as mpl
 from .style import _plot_defaults
 
-EPS = 1e-37
+EPS = 1e-20
 
 _ = lambda x: x
 
@@ -29,7 +29,7 @@ def _ensure_array(arraylike):
         arraylike = np.array(arraylike)
     return arraylike
 
-def _get_counts(treatment, outcome):
+def _get_counts(treatment, outcome, p):
     """Extract (treatment,outcome) pair counts from treatment and outcome vectors.
 
     Calculate counts of outcome/treatment combinations. Variables are named
@@ -42,6 +42,8 @@ def _get_counts(treatment, outcome):
         Vector of 1s and 0s indicating exposure to a treatment.
     outcome : np.array
         Vector of 1s and 0s indicating successful outcome.
+    p : np.array
+        Vector of values 0 < p < 1 indicating probability of treatment.
 
     Returns
     -------
@@ -55,10 +57,10 @@ def _get_counts(treatment, outcome):
         Number of entries where (treatment, outcome) == (0,0).
 
     """
-    Nt1o1 = np.count_nonzero((treatment == 1) & (outcome > 0))
-    Nt0o1 = np.count_nonzero((treatment == 0) & (outcome > 0))
-    Nt1o0 = np.count_nonzero((treatment == 1) & (outcome == 0))
-    Nt0o0 = np.count_nonzero((treatment == 0) & (outcome == 0))
+    Nt1o1 = 0.5*np.sum(1/p[(treatment == 1) & (outcome > 0)])
+    Nt0o1 = 0.5*np.sum(1/(1-p[(treatment == 0) & (outcome > 0)]))
+    Nt1o0 = 0.5*np.sum(1/p[(treatment == 1) & (outcome == 0)])
+    Nt0o0 = 0.5*np.sum(1/(1-p[(treatment == 0) & (outcome == 0)]))
     return Nt1o1, Nt0o1, Nt1o0, Nt0o0
 
 def _get_tc_counts(Nt1o1, Nt0o1, Nt1o0, Nt0o0):
@@ -337,7 +339,7 @@ def _maximal_cuplift_curve(func, Nt1o1, Nt0o1, Nt1o0, Nt0o0):
     x = [0, sum(persuadables)/N, 1-sum(dogs)/N, 1]
     return x, y
 
-def get_scores(treatment, outcome, prediction, scoring_range=(0,1), plot_type='all'):
+def get_scores(treatment, outcome, prediction, p, scoring_range=(0,1), plot_type='all'):
     """Calculate AUC scoring metrics.
 
     Parameters
@@ -345,6 +347,8 @@ def get_scores(treatment, outcome, prediction, scoring_range=(0,1), plot_type='a
     treatment : array-like
     outcome : array-like
     prediction : array-like
+    p : array-like
+        Treatment policy (probability of treatment for each row).
     scoring_range : 2-tuple
         Fractional range over which frost score is calculated. First element
         must be less than second, and both must be less than 1.
@@ -381,8 +385,9 @@ def get_scores(treatment, outcome, prediction, scoring_range=(0,1), plot_type='a
     treatment = _ensure_array(treatment)
     outcome = _ensure_array(outcome)
     prediction = _ensure_array(prediction)
+    p = _ensure_array(p)
 
-    Nt1o1, Nt0o1, Nt1o0, Nt0o0 = _get_counts(treatment, outcome)
+    Nt1o1, Nt0o1, Nt1o0, Nt0o0 = _get_counts(treatment, outcome, p)
     Nt1, Nt0, N = _get_tc_counts(Nt1o1, Nt0o1, Nt1o0, Nt0o0)
 
     def riemann(x, y):
@@ -412,26 +417,27 @@ def get_scores(treatment, outcome, prediction, scoring_range=(0,1), plot_type='a
 
     y_ordered = sortbyprediction(y)
     tr_ordered = sortbyprediction(treatment)
+    p_ordered = sortbyprediction(p)
 
     def auc(method='qini'):
         # Calculate the area.
         uplift_last = 0
-        nt1o1 = EPS
-        nt0o1 = EPS
+        nt1o1 = 0
+        nt0o1 = 0
         nt1 = EPS
         nt0 = EPS
         pred_riemann = 0
         uplifts = []
-        for i in range(round(scoring_range[0]*N), round(scoring_range[1]*N)):
+        for i in range(round(scoring_range[0]*len(treatment)), round(scoring_range[1]*len(treatment))):
             if y_ordered[i] > 0:
-                nt1o1 += 1
+                nt1o1 += 0.5*(1/p_ordered[i])
             elif y_ordered[i] < 0:
-                nt0o1 += 1
+                nt0o1 += 0.5*(1/(1-p_ordered[i]))
 
             if tr_ordered[i] == 1:
-                nt1 += 1
+                nt1 += 0.5*(1/p_ordered[i])
             else:
-                nt0 += 1
+                nt0 += 0.5*(1/(1-p_ordered[i]))
 
             if method=='qini':
                 uplift_next = nt1o1/Nt1-nt0o1/Nt0
@@ -483,6 +489,8 @@ class UpliftEval:
     This class can be used independently of the methods in this package, i.e.
     if you want to evaluate the performance of an externally generated model.
 
+    NOTE: the maximal Qini curves do not currently work with continuous outcomes.
+
     Parameters
     ----------
     treatment : array-like
@@ -491,20 +499,32 @@ class UpliftEval:
         Arrays of nonzero values and zeros indicating whether a response occurred.
     prediction : array-like
         Predicted value used to rank.
+    p : float, None, or array-like
+        The treatment policy, P(treatment==1). Can be a float if uniform across
+        all individuals; or an array if individual-dependent.
 
     """
 
-    def __init__(self, treatment, outcome, prediction, n_bins=20):
+    def __init__(self, treatment, outcome, prediction, p="infer", n_bins=20):
 
         # Cast input arrays as np.array.
         self.treatment = _ensure_array(treatment)
         self.outcome = _ensure_array(outcome)
         self.prediction = _ensure_array(prediction)
 
+        # Deal with `p`, in case float or None.
+        if type(p) == str:
+            if p == "infer":
+                self.p = np.ones(self.prediction.shape)*len(self.treatment[self.treatment==1])/len(self.treatment)
+        elif type(p) == float:
+            self.p = np.ones(self.prediction.shape)*p
+        else:  # If array.
+            self.p = _ensure_array(p)
+
         plot_types = ['qini', 'aqini', 'cgains', 'cuplift', 'uplift', 'balance']
 
         # Counts.
-        Nt1o1, Nt0o1, Nt1o0, Nt0o0 = _get_counts(self.treatment, self.outcome)
+        Nt1o1, Nt0o1, Nt1o0, Nt0o0 = _get_counts(self.treatment, self.outcome, self.p)
         self.N_treat = Nt1o0 + Nt1o1
         self.N_contr = Nt0o0 + Nt0o1
         self.N = self.N_treat + self.N_contr
@@ -524,8 +544,8 @@ class UpliftEval:
         for plot_type in plot_types:
             self.calc(plot_type=plot_type, n_bins=n_bins)
 
-        # Calculate frost score and other metrics.
-        scores = get_scores(self.treatment, self.outcome, self.prediction)
+        # Calculate Q, q1, q2 scores and other metrics.
+        scores = get_scores(self.treatment, self.outcome, self.prediction, self.p)
         for key in scores:
             setattr(self, key, scores[key])
 
@@ -554,13 +574,13 @@ class UpliftEval:
         setattr(self, plot_type+'_n_bins', n_bins)
 
         # Create bins.
-        bin_range = np.linspace(0, self.N, n_bins+1).astype(int)
+        bin_range = np.linspace(0, len(self.treatment), n_bins+1).astype(int)
 
         # Define whether the curve uses all data up to the percentile, or the data within that percentile.
         def noncumulative_subset_func(i):
-            return np.isin(list(range(self.N)), prob_index[bin_range[i]:bin_range[i+1]])
+            return np.isin(list(range(len(self.treatment))), prob_index[bin_range[i]:bin_range[i+1]])
         def cumulative_subset_func(i):
-            return np.isin(list(range(self.N)), prob_index[:bin_range[i+1]])
+            return np.isin(list(range(len(self.treatment))), prob_index[:bin_range[i+1]])
 
         subsetting_functions = {
             'qini': cumulative_subset_func,
@@ -582,6 +602,7 @@ class UpliftEval:
         }
 
         # Initialize output lists.
+        x = []
         y = []
 
         # Sort `self.prediction`, descending, then get the indices in the test set that
@@ -591,21 +612,36 @@ class UpliftEval:
         # Calculate qini curve points for each bin.
         for i in range(n_bins):
             current_subset = subsetting_functions[plot_type](i)
-            # Check the values of outcome in this subset for test and control.
-            resp_treated = self.outcome[(self.treatment==1) & current_subset]
-            resp_untreated = self.outcome[(self.treatment==0) & current_subset]
+            # Get the values of outcome in this subset for test and control.
+            treated_subset = (self.treatment==1) & current_subset
+            resp_treated = self.outcome[treated_subset]
+            untreated_subset = (self.treatment==0) & current_subset
+            resp_untreated = self.outcome[untreated_subset]
+            # Get the policy for each of these as well.
+            p_treated = self.p[treated_subset]
+            p_untreated = self.p[untreated_subset]
+
             # Count the number of correct values (i.e. y==1) within each of these
             # sections as a fraction of total ads shown.
-            nt1o1 = np.sum(resp_treated)
-            nt0o1 = np.sum(resp_untreated)
-            nt1 = len(resp_treated)
-            nt0 = len(resp_untreated)
+            nt1o1 = np.sum(resp_treated*0.5/p_treated)
+            nt0o1 = np.sum(resp_untreated*0.5/(1-p_untreated))
+            nt1 = np.sum(0.5/p_treated)
+            nt0 = np.sum(0.5/(1-p_untreated))
             y.append(y_calculating_functions[plot_type](nt1o1, nt0o1, nt1, nt0))
 
-        percentile = [x/n_bins for x in list(range(1, n_bins+1))]
+            x.append(nt1+nt0)
 
-        if plot_type not in ['balance', 'uplift']:
-            percentile.insert(0,0)
+        # For non-cumulative functions, we need to do a cumulative sum of the x
+        # values, because the sums in the loop only captured the counts within
+        # the non-cumulative bins.
+        if plot_type in ['balance', 'uplift']:
+            x = np.cumsum(x)
+
+        # Rescale x so it's between 0 and 1.
+        percentile = x/np.amax(x)
+
+        if plot_type not in ['balance', 'uplift', 'cuplift']:
+            percentile = np.insert(percentile, 0, 0)
             y.insert(0,0)
 
         setattr(self, plot_type+'_x', percentile)
@@ -666,7 +702,7 @@ class UpliftEval:
             max_plot_type='qini'
             # Plot random selection line.
             if show_random_selection:
-                ax.plot([0,1], [0, self.qini_y[-1]], '--', color=[0.6, 0.6, 0.6], label='Random selection')
+                ax.plot([0,1], [0, getattr(self, plot_type+'_y')[-1]], '--', color=[0.6, 0.6, 0.6], label='Random selection')
         else:
             max_plot_type=plot_type
 

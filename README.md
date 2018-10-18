@@ -1,6 +1,6 @@
 # pylift
 
-[![Documentation Status](https://readthedocs.org/projects/pylift/badge/?version=latest)](https://pylift.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/pylift/badge/?version=latest)](https://pylift.readthedocs.io/en/latest/?badge=latest) [![Build Status](https://travis-ci.com/rsyi/pylift.svg?branch=master)](https://travis-ci.com/rsyi/pylift)
 
 [Read our documentation!](https://pylift.readthedocs.io/en/latest/)
 

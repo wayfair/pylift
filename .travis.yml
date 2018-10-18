@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+  - pip install --no-cache-dir --upgrade .  # This should be changed once on pypi.
+
+script:
+  - python ./tests/eval_test.py
