@@ -4,7 +4,7 @@ and 1s (0 for control, 1 for test) and a outcome column of 0s and 1s.
 Implementation can be as simple as follows:
 
 ```
-from pylift.proxymethods import TransformedOutcome
+from pylift import TransformedOutcome
 up = TransformedOutcome(df1, col_treatment='Treatment', col_outcome='Converted')
 
 up.randomized_search()
