@@ -258,14 +258,20 @@ def _maximal_qini_curve(func, Nt1o1, Nt0o1, Nt1o0, Nt0o0):
     """
     Nt1, Nt0, N = _get_tc_counts(Nt1o1, Nt0o1, Nt1o0, Nt0o0)
     persuadables, dogs, sure_things, lost_causes = func(Nt1o1, Nt0o1, Nt1o0, Nt0o0)
-    # Calculate the number of persuadables in the treated group to get the qini y value.
     # For the overfit case, this is simply the entire treated group.
     if func == _get_overfit_counts:
-        persuadables_treated = Nt1o1
+        slope = 2
     else:
-        persuadables_treated = persuadables*Nt1/N
-    y = [0, persuadables_treated/Nt1, persuadables_treated/Nt1, (Nt1o1/Nt1-Nt0o1/Nt0)]
+        slope = 1
     x = [0, persuadables/N, 1-dogs/N, 1]
+    # Deal with edge case where number of persuadables is greater than sleeping
+    # dogs (common if this is not a treatment/control experiment, but an
+    # experiment between two treatments).
+    if x[1]>x[2]:
+        new_val = (x[1]+x[2])/2
+        x[1] = new_val
+        x[2] = new_val
+    y = [0, x[1]*slope, x[1]*slope, (Nt1o1/Nt1-Nt0o1/Nt0)]
 
     return x, y
 
