@@ -65,10 +65,7 @@ class BaseProxyMethod:
         """ scoring function to be passed to make_scorer.
 
         """
-        if self.individual_policy_given:  # If indiv. policy is given, it needs to be inferred in the untransform step.
-            treatment_true, outcome_true, p = self.untransform(y_true)
-        else:  # Otherwise, if uniform, it can be passed as an argument.
-            treatment_true, outcome_true, p = self.untransform(y_true, self.p)
+        treatment_true, outcome_true, p = self.untransform(y_true)
         scores = get_scores(treatment_true, outcome_true, y_pred, p, scoring_range=(0,self.scoring_cutoff[method]), plot_type=plot_type)
         return scores[score_name]
 

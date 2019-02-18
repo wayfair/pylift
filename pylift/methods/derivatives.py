@@ -13,6 +13,28 @@ import pickle
 TOL = 1e-37
 EPS = 1e-20
 
+def custom_objective(dtrain, preds):
+    # Error.
+    err = preds - dtrain
+    treatment, outcome, p = TransformedOutcome._untransform_func(dtrain)
+    # Correct for policy.
+    nt_scaled = np.sum(0.5*treatment/p)
+    nc_scaled = np.sum(0.5*(1-treatment)/(1-p))
+    p_scaled = nt_scaled/(nt_scaled + nc_scaled)
+
+    w_i = 0.25*(treatment/(p_scaled*p) + (1-treatment)/((1-p_scaled)*(1-p)))
+    grad = w_i*err
+    hess = np.ones(dtrain.shape)
+    return grad, hess
+
+class FlaggedFloat(float):
+    """Float subclass that retains a Treatment flag property.
+    """
+    def save(self, outcome, treatment, p):
+        self.outcome = outcome
+        self.treatment = treatment
+        self.p = p
+
 class TransformedOutcome(BaseProxyMethod):
     """Implement Transformed Outcome [Trees] method.
 
@@ -79,21 +101,27 @@ class TransformedOutcome(BaseProxyMethod):
             Transformed label.
 
         """
-        treatment = np.array(treatment)
-        outcome = np.array(outcome).astype(float)
-        # Make sure outcome=0 maps to EPS, to preserve sign.
-        outcome[outcome==0] = EPS
+        treatment = list(treatment)
+        outcome = list(outcome)
+        if np.size(p) == 1:  # If numerical.
+            p = [p for i in range(len(treatment))]
+        else:  # If array-like.
+            p = list(p)
+
         # Change nonzero outcomes according to treatment/control split.
-        y = outcome*((treatment-p)/(p*(1-p)))
+        y = [FlaggedFloat(o*((t-pr)/(pr*(1-pr)))) for o, t, pr in zip(outcome, treatment, p)]
+        for yi, oi, ti, pi in zip(y, outcome, treatment, p):
+            yi.save(oi, ti, pi)
+        y = np.array(y, dtype=np.dtype(FlaggedFloat))
         return y
 
     @staticmethod
-    def _untransform_func(ys, p=None):
+    def _untransform_func(ys):
         """Function that recovers original data from Transformed Outcome.
 
         Parameters
         ----------
-        ys : array-like
+        ys : numpy.array
             Transformed label.
         p : float or np.array, optional
             Probability of observing a treatment=1 flag, used to reverse the
@@ -107,38 +135,9 @@ class TransformedOutcome(BaseProxyMethod):
             Array of 1s and 0s indicating outcome.
 
         """
-        ys = np.array(ys)
-
-        treatment = np.zeros(ys.shape)
-        outcome = np.zeros(ys.shape)
-        nonzeros = (abs(ys)!=EPS)
-
-        # Get the treatment label (positive or negative).
-        t1 = (ys > 0)
-        t0 = (ys < 0)
-        treatment[t1] = 1  # All other entrise are by default 0.
-
-        # Get the policy back, if not given. p ranges between 0 and 1. Hack here: as long as it's bigger than EPS and less than 1-EPS, we can recover it.
-        if (type(p) == float):
-            outcome[t1] = ys[t1]*p
-            outcome[t0] = -ys[t0]*(1-p)
-            p = np.ones(ys.shape)*p
-        if (type(p) == np.ndarray):
-            outcome[t1] = ys[t1]*p[t1]
-            outcome[t0] = -ys[t0]*(1-p[t0])
-        else:
-            t1o1 = t1 & (ys>=1)
-            t1o0 = t1 & (ys<=1)
-            t0o1 = t0 & (ys<=-1)
-            t0o0 = t0 & (ys>-1)
-            p = np.zeros(ys.shape)
-            p[t1o1] = 1/ys[t1o1]
-            p[t1o0] = EPS/ys[t1o0]
-            p[t0o1] = 1+1/ys[t0o1]
-            p[t0o0] = 1+EPS/ys[t0o0]
-            outcome[t1] = ys[t1]*p[t1]
-            outcome[t0] = -ys[t0]*(1-p[t0])
-        outcome[np.abs(outcome) - EPS < TOL] = 0
+        treatment = np.array([i.treatment for i in ys])
+        p = np.array([i.p for i in ys])
+        outcome = np.array([i.outcome for i in ys])
 
         return treatment, outcome, p
 
