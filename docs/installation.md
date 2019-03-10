@@ -1,6 +1,6 @@
 # Installation
 
-**pylift** has only been tested on Python **3.6**. It currently requires the following package versions:
+**pylift** has only been tested on Python **3.6** and **3.7**. It currently requires the following package versions:
 
 ```
 matplotlib >= 2.1.0
