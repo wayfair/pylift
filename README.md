@@ -12,6 +12,15 @@ other packages -- namely, `xgboost`, `sklearn`, `pandas`, `matplotlib`,
 `numpy`, and `scipy`. The primary method currently implemented is the
 Transformed Outcome proxy method (Athey 2015).
 
+## How to install
+Option 1: install from the GitHub repository
+
+    pip install git+https://github.com/wayfair/pylift.git
+
+Option 2: clone the GitHub repository, cd into the downloaded repository, and run:
+
+    python setup.py install
+
 ## License
 Licensed under the BSD-2-Clause by the authors.
 
