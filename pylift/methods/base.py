@@ -391,7 +391,7 @@ class BaseProxyMethod:
             noise_fits.append(upev)
         self.noise_fits = noise_fits
 
-    def shuffle_fit(self, iterations=10, n_bins=20, params=None, transform_train=None, clear=False, plot_type='cgains', stratify=None, **kwargs):
+    def shuffle_fit(self, iterations=10, n_bins=20, params=None, transform_train=None, clear=False, plot_type='cgains', stratify=None, starting_seed=0, **kwargs):
         """Try the train-test split `iterations` times, and fit a model using `params`.
 
         Parameters
@@ -416,6 +416,7 @@ class BaseProxyMethod:
             Type of plot to show. Can be `aqini`, `qini`, `cgains`.
         stratify : anything that can be passed to parameter of same name in train_test_split, optional
             If not None, stratify is used as input into train_test_split.
+        starting_seed : the random seed used for the first iteration of train_test_split. All subsequent iterations increment from this value.
 
         """
         bootstrap_fits = []
@@ -430,7 +431,7 @@ class BaseProxyMethod:
                 print('ERROR: You need to pass parameters to shuffle fit.')
 
         ups = {}
-        for seed in range(iterations):
+        for seed in range(starting_seed, starting_seed+iterations):
             df_train, df_test = train_test_split(self.df, test_size=0.2, random_state=seed, stratify=stratify)
             if transform_train:
                 df_train[self.col_outcome] = transform_train(df_train[self.col_outcome])
