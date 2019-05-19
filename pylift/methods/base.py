@@ -289,8 +289,9 @@ class BaseProxyMethod:
         """
         feats = feats_to_use if feats_to_use else self.x_train.columns
         df_with_bins = _add_bins(self.df_train, feats, n_bins=n_bins)
-        self.NIV_dict = _NIV(df_with_bins, feats, col_treatment=self.col_treatment, col_outcome=self.col_outcome)
+        # self.NIV_dict = _NIV(df_with_bins, feats, col_treatment=self.col_treatment, col_outcome=self.col_outcome)
         means_dict, low_perc_dict, high_perc_dict = _NIV_bootstrap(self.df_train, feats, n_bins=n_bins, perc=[20,80], n_iter=n_iter, frac=0.5, col_treatment=self.col_treatment, col_outcome=self.col_outcome)
+        self.NIV_dict = means_dict
         ax = _plot_NIV_bs(means_dict, low_perc_dict, high_perc_dict, feats)
         return ax
 
