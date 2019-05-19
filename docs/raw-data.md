@@ -16,7 +16,8 @@ up.transform                # Outcome transform function.
 up.untransform              # Reverse of outcome transform function.
 
 # Data (`y` in any of these can be replaced with `tc` for treatment or `x`).
-up.transformed_y_train  # The predicted uplift.
+up.transformed_y_train_pred  # The predicted uplift.
+up.transformed_y_train  # The transformed outcome.
 up.y_train
 up.y_test
 up.y                    # All the `y` data.
