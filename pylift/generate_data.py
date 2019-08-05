@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def dgp(N=1000, n_features=3, beta=[-3,-8,13,-8], error_std=0.5, tau=3, tau_std=1, discrete_outcome=False, seed=2701, feature_effect=0.5):
+def dgp(N=1000, n_features=3, beta=None, error_std=0.5, tau=3, tau_std=1, discrete_outcome=False, seed=2701, feature_effect=0.5):
     """
     dgp(N=1000, n_features=3, beta=[1,-2,3,-0.8], error_std=0.5, tau=3, discrete_outcome=False)
 
@@ -38,16 +38,20 @@ def dgp(N=1000, n_features=3, beta=[-3,-8,13,-8], error_std=0.5, tau=3, tau_std=
         A DataFrame containing the generated data.
 
     """
+
     np.random.seed(seed=seed)
+
+    if(beta and (n_features != len(beta) -1)):
+        raise ValueError('If custom beta supplied, len(beta) must be equal to n_features+1')
+
+    # Effect of features on outcome.
+    if beta is None:
+        beta = np.random.random(n_features+1)
 
     # Define features, error, and random treatment assignment.
     X = np.random.random(size=(N, n_features))
     error = np.random.normal(size=(N), loc=0, scale=error_std)
     treatment = np.random.binomial(1, .5, size=(N))
-
-    # Effect of features on outcome.
-    if beta is None:
-        beta = np.random.random(n_features+1)
 
     # Treatment heterogeneity.
     tau_vec = np.random.normal(loc=tau, scale=tau_std, size=N) + np.dot(X, beta[1:])*feature_effect
@@ -63,3 +67,6 @@ def dgp(N=1000, n_features=3, beta=[-3,-8,13,-8], error_std=0.5, tau=3, tau_std=
 
     df = pd.DataFrame(np.concatenate((X, treatment.reshape(-1,1), y.reshape(-1,1)), axis=1), columns=names)
     return df
+
+
+
