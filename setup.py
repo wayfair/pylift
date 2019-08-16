@@ -6,7 +6,6 @@ setup(name='pylift',
       author='Robert Yi, Will Frost',
       author_email='robert@ryi.me',
       url='https://github.com/rsyi/pylift',
-      download_url='https://github.com/rsyi/pylift/archive/v0.0.1.tar.gz',
       install_requires=[
             'numpy',
             'matplotlib',
