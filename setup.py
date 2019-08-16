@@ -5,7 +5,7 @@ setup(name='pylift',
       description='Python implementation of uplift modeling.',
       author='Robert Yi, Will Frost',
       author_email='robert@ryi.me',
-      url='https://github.com/rsyi/pylift',
+      url='https://github.com/wayfair/pylift',
       install_requires=[
             'numpy',
             'matplotlib',
