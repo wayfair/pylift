@@ -70,9 +70,9 @@ def dgp(N=1000, n_features=3, beta=None, error_std=0.5, tau=3, tau_std=1, discre
 
 
 
-def sim_pte(N = 1000, n_features = 20, beta = None, rho = 0, sigma =  np.sqrt(2), beta_den = 4, discrete_outcome=False, seed=None):
+def sim_pte(N=1000, n_features=20, beta=None, rho=0, sigma=np.sqrt(2), beta_den=4, discrete_outcome=False, seed=None):
     """
-    sim_pte(N = 1000, p = 20, rho = 0, sigma = np.sqrt(2), beta_den = 4)
+    sim_pte(N=1000, p=20, rho=0, sigma=np.sqrt(2), beta_den=4)
 
     Numerical simulation for treatment effect heterogeneity estimation as described in Tian et al. (2012)
     Translated from the R uplift package (Leo Guelman <leo.guelman@gmail.com>).
