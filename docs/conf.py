@@ -27,7 +27,7 @@ for mod_name in MOCK_MODULES:
 # -- Project information -----------------------------------------------------
 
 project = 'pylift'
-copyright = '2019, the authors'
+copyright = '2018-2019, the authors'
 author = 'Robert Yi, Will Frost'
 
 # The full version, including alpha/beta/rc tags
