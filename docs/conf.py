@@ -20,14 +20,14 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # Add mock modules.
 import mock
-MOCK_MODULES = ['matplotlib', 'matplotlib.pylab', 'matplotlib.pyplot', 'numpy', 'pandas', 'scipy',      'scipy.stats', 'sklearn', 'sklearn.ensemble', 'sklearn.metrics', 'sklearn.model_selection', 'xgboost']
+MOCK_MODULES = ['matplotlib', 'matplotlib.pylab', 'matplotlib.pyplot', 'numpy', 'pandas', 'scipy', 'scipy.stats', 'sklearn', 'sklearn.ensemble', 'sklearn.metrics', 'sklearn.model_selection', 'xgboost']
 for mod_name in MOCK_MODULES:
    sys.modules[mod_name] = mock.Mock()
 
 # -- Project information -----------------------------------------------------
 
 project = 'pylift'
-copyright = '2019, Robert Yi, Will Frost'
+copyright = '2019, the authors'
 author = 'Robert Yi, Will Frost'
 
 # The full version, including alpha/beta/rc tags
@@ -40,7 +40,6 @@ release = '0.0.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'recommonmark',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax'
@@ -50,7 +49,6 @@ napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
 
-mathjax_path="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 mathjax_config = {
     'extensions': ['tex2jax.js'],
     'jax': ['input/TeX', 'output/HTML-CSS'],
