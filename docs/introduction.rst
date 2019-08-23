@@ -67,17 +67,17 @@ The Qini curve
 Once the model has been made, evaluation is traditionally accomplished
 using what is known as a Qini curve. The Qini curve is defined as
 
-.. math:: \text{Qini curve}(\phi) = \frac{n_{A,y=1}(\phi)}{n_A} - \frac{n_{B,y=1}(\phi)}{n_B}
+.. math:: \text{Qini curve}(\phi) = \frac{n_{t,y=1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)}{N_c}
 
 where :math:`\phi` is the fraction of population treated (in
-either A or B) ordered by predicted uplift (from highest to lowest).
+either treatment :math:`t` or control :math:`c`, as indicated by the subscripts) ordered by predicted uplift (from highest to lowest). We use lowercase :math:`n` to indicate a :math:`\phi`-dependent count, and the uppercase :math:`N` to indicate a total count (i.e. :math:`n(1)`).
 “Random chance” is therefore a model that cannot distinguish positive
 and negative uplift and results in a straight line from :math:`(0,0)` to
 
 .. math::
 
-   (1, \frac{n_{A,y=1}}{n_A} -
-   \frac{n_{B,y=1}}{n_B}).
+   \left(1, \frac{N_{t,y=1}}{N_t} -
+   \frac{N_{c,y=1}}{N_c}\right).
 
 The value ``Q`` is then the area between the model’s Qini curve and the
 random chance Qini curve. ``Q`` has been used throughout the literature
@@ -109,22 +109,22 @@ To evaluate ``Q``, we predict the uplift for each row in our dataset. We
 then order the dataset from highest uplift to lowest uplift and evaluate
 the Qini curve as a function of the population targeted. The area
 between this curve and the x-axis can be approximated by a Riemann sum
-on the :math:`N` data points:
+on the :math:`M` data points:
 
-.. math:: \text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\text{Qini curve}(\phi_{i+1})+\text{Qini curve}(\phi_{i})\right)\left(\phi_{i+1} - \phi_{i}\right)
+.. math:: \text{Qini Curve Area} = \sum_{i=0}^{M-1} \frac{1}{2}\left(\text{Qini curve}(\phi_{i+1})+\text{Qini curve}(\phi_{i})\right)\left(\phi_{i+1} - \phi_{i}\right)
 
 where
 
-.. math:: \phi_{i} = i/N,
+.. math:: \phi_{i} = i/M,
 
 and so
 
-.. math:: \text{Qini Curve Area} = \sum_{i=0}^{N-1} \frac{1}{2}\left(\frac{n_{A,y=1}(\phi_{i+1})-n_{A,y=1}(\phi_{i})}{n_A} - \frac{n_{B,y=1}(\phi_{i+1})-n_{B,y=1}(\phi_i)}{n_B}\right)\frac{1}{N}
+.. math:: \text{Qini Curve Area} = \sum_{i=0}^{M-1} \frac{1}{2}\left(\frac{n_{t,y=1}(\phi_{i+1})-n_{t,y=1}(\phi_{i})}{N_t} - \frac{n_{c,y=1}(\phi_{i+1})-n_{c,y=1}(\phi_i)}{N_c}\right)\frac{1}{M}
 
 We then need to subtract off the randomized curve area which is given
 by:
 
-.. math:: \text{Randomized Qini Area} = \frac{1}{2}\left(\frac{n_{A,y=1}}{n_A} - \frac{n_{B,y=1}}{n_B}\right)
+.. math:: \text{Randomized Qini Area} = \frac{1}{2}\left(\frac{N_{t,y=1}}{N_t} - \frac{N_{c,y=1}}{N_c}\right)
 
 and so the Qini coefficient is:
 
@@ -139,13 +139,18 @@ as defined above could give values that are deceptively inflated. To
 correct for this, we implemented two alternate Qini-style curves. First,
 the **Cumulative Gain Chart** (Gutierrez 2017) finds the lift within the
 subset of the population up to :math:`\phi`, then multiplies
-this by :math:`\phi` to scale the resulting quantity to match
-the Qini curve:
+this by :math:`n_t(\phi) + n_c(\phi)` to scale the resulting lift to the scale of global impact:
 
-.. math:: \mbox{Cumulative gain}(\phi) \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right).
+.. math:: \mbox{Cumulative gain}(\phi) = \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right).
+
+In our formulation, we multiple by :math:`\phi` instead, as follows, so the y-axis matches the y-axis of the Qini curves.
+
+.. math:: \mbox{Cumulative gain}(\phi) = \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \frac{\left( n_t(\phi) + n_c(\phi) \right)}{N_t + N_c}.
 
 Note we simplified the notation, replacing :math:`y=1` above with simply
 :math:`1` in the subscripts of :math:`n`.
+
+.. math:: \mbox{Cumulative gain}(\phi) = \left( \frac{n_{t,1}(\phi)}{n_t(\phi)} - \frac{n_{c,1}(\phi)}{n_c(\phi)} \right) \left( n_t(\phi) + n_c(\phi) \right).
 
 Alternatively, we also implement what we call the **Adjusted Qini
 curve**, which we define as follows:
