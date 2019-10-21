@@ -10,6 +10,9 @@ from sklearn.metrics import make_scorer
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, train_test_split
 from xgboost import XGBRegressor
 
+from skopt import BayesSearchCV
+from skopt.space import Real, Integer
+
 from ..eval import _plot_defaults, get_scores, UpliftEval
 from ..explore.base import _add_bins, _NWOE, _NIV, _NIV_bootstrap, _plot_NWOE_bins, _plot_NIV_bs
 
@@ -56,6 +59,18 @@ class BaseProxyMethod:
     stratify : column name or anything that can be passed to parameter of same
     name in train_test_split, optional
         If not None, stratify is used as input into train_test_split.
+    scoring_method : string or list, optional
+        Either `qini`, `aqini`, `cgains` or `max_` prepended to any of the
+        previous values. Any strings available to the parameter `scoring` in
+        `sklearn.model_selection.RandomizedSearchCV` can also be passed.
+    scoring_cutoff : float or dict, optional
+        The fraction of observations used to score qini for hyperparam
+        searches. E.g. if 0.4, the 40% of observations with the highest
+        predicted uplift are used to determine the frost score in the
+        randomized search scoring function. If a list of scoring_methods is
+        passed, a dictionary can also be passed here, where the keys are the
+        scoring_method strings and the values are the scoring cutoff for those
+        specific methods.    
     sklearn_model : scikit-learn regressor
         Model used for grid searching and fitting.
 
@@ -234,6 +249,11 @@ class BaseProxyMethod:
                 'param_grid': {'min_child_weight': list(range(1,200,1))},
                 **default_params
             }
+            self.bayes_search_params = {
+                'estimator': self.sklearn_model(),
+                'search_spaces':{'gamma':Real(1e-6, 1e+1, prior='log-uniform')},
+                **default_params
+            }
         # Default parameters for other models.
         else:
             self.randomized_search_params = {
@@ -241,6 +261,10 @@ class BaseProxyMethod:
                 **default_params
                 }
             self.grid_search_params = {
+                'estimator': self.sklearn_model(),
+                **default_params
+            }
+            self.bayes_search_params = {
                 'estimator': self.sklearn_model(),
                 **default_params
             }
@@ -339,6 +363,28 @@ class BaseProxyMethod:
         self.grid_search_.fit(self.x_train, self.transformed_y_train)
         return self.grid_search_
 
+    def bayes_search(self, **kwargs):
+        """
+        Grid search using skopt.BayesSearchCV
+        
+        Any parameters typically associated with BayesSearchCV (see
+        Scikit-Optimize documentation) can be passed as keyword arguments to 
+        this function.
+        
+         The final dictionary used for the grid search is saved to
+        `self.bayes_search_params`. This is updated with any parameters that
+        are passed.
+        
+        Examples
+        --------
+        # Passing kwargs.
+        self.bayes_search(search_spaces={'max_depth':Integer(4, 6)}, refit=True)
+        """
+        self.bayes_search_params.update(kwargs)
+        self.bayes_search_ = BayesSearchCV(**self.bayes_search_params)
+#        print('total_iterations: {}'.format(self.bayes_search_.total_iterations) )
+        self.bayes_search_.fit(self.x_train, self.transformed_y_train)
+        return self.bayes_search_
 
     def fit(self, productionize=False, **kwargs):
         """A fit wrapper around any sklearn Regressor.
