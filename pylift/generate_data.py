@@ -109,7 +109,7 @@ def sim_pte(N=1000, n_features=20, beta=None, rho=0, sigma=np.sqrt(2), beta_den=
     if p < 4:
         raise ValueError("uplift: The number predictors must be equal or greater than 4")
 
-    if rho < 0 | rho > 1:
+    if rho < 0 or rho > 1:
         raise ValueError("uplift: rho must be between 0 and 1")
 
     if sigma < 0:
