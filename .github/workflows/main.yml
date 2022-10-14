@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  pull_request: {}
+  push:
+      branches: ["main"]
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 🧼 Lint Renovate configuration
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@v0.1.2
+        with:
+          config_file_path: 'renovate.json'
