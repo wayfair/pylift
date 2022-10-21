@@ -7,8 +7,6 @@
     "before 3am every weekday"
   ],
   "enabledManagers": [
-    "pip_requirements",
-    "pip-compile",
-    "pyenv"
+    "pip_requirements"
   ]
 }
