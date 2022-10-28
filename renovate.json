@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "config:base",
+    ":rebaseStalePrs"
+  ],
+  "schedule": [
+    "before 3am every weekday"
+  ],
+  "enabledManagers": [
+    "pip_requirements"
+  ]
+}
